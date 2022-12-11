@@ -1,4 +1,4 @@
-gitdir="config"
+gitdir="$HOME/config"
 # relative path from ~, i.e. the home directory
 id=" "
 #CAUTION!! FILL THIS BLANK!!
