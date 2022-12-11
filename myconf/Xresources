@@ -1,0 +1,81 @@
+Xft.dpi: 144
+Xft.autohint: 0
+Xft.lcdfilter:  lcddefault
+Xft.hintstyle:  hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
+
+
+!look and feel
+xterm.termName: xterm-256color
+xterm.geometry: 80x36
+xterm*scrollBar: false
+xterm*rightScrollBar: true
+xterm*loginshell: true
+xterm*cursorBlink: true
+xterm*background:  black
+xterm*foreground:  gray
+xterm.borderLess: true
+xterm.cursorBlink: true
+xterm*colorUL: yellow
+xterm*colorBD: white
+
+
+!fix alt key input 
+xterm*eightBitInput: false
+xterm*altSendsEscape: true
+
+
+
+!print color and bold/underline attributes
+xterm*printAttributes: 2
+xterm*printerCommand: cat > ~/xtermdump
+
+
+
+!mouse selecting to copy, ctrl-v to paste
+!Ctrl p to print screen content to file
+XTerm*VT100.Translations: #override \
+    Ctrl Shift <KeyPress> V: insert-selection(CLIPBOARD,PRIMARY,CUT_BUFFER0) \n\
+    <BtnUp>: select-end(CLIPBOARD,PRIMARY,CUT_BUFFER0) \n\
+    Ctrl Shift <KeyPress> P: print() \n
+
+
+
+
+!font and locale
+xterm*locale: true
+xterm.utf8:     true
+xterm*utf8Title: true
+xterm*fontMenu*fontdefault*Label: Default
+!xterm*faceName: Monospace:antialias=True:pixelsize=15
+xterm*faceName: Monospace:antialias=True:pixelsize=30
+!xterm*faceName: monofur:antialias=True:pixelsize=20
+!xter*boldFont: DejaVu Sans Mono:style=Bold:pixelsize=15
+!xterm*faceNameDoublesize: Noto Sans CJK SC:pixelsize=16:antialias=True
+xterm*faceNameDoublesize: Noto Sans CJK SC:pixelsize=30:antialias=True
+xterm*xftAntialias: true
+xterm*cjkWidth: false            !<-----谢谢xeoc指正 
+
+
+!-- Tango color scheme
+*xterm*color0: #2e3436
+*xterm*color1: #cc0000
+*xterm*color2: #4e9a06
+*xterm*color3: #c4a000
+*xterm*color4: #3465a4
+*xterm*color5: #75507b
+*xterm*color6: #0b939b
+*xterm*color7: #d3d7cf
+*xterm*color8: #555753
+*xterm*color9: #ef2929
+*xterm*color10: #8ae234
+*xterm*color11: #fce94f
+
+!input method
+Xterm*inputMethod: fcitx
+
+Ctrl <KeyPress> V: insert-selection(CLIPBOARD,PRIMARY,CUT_BUFFER0) \n\
+<BtnUp>: select-end(CLIPBOARD,PRIMARY,CUT_BUFFER0) \n\
+Ctrl <KeyPress> P: print() \n

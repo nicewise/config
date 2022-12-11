@@ -1,0 +1,21 @@
+# Created by Sunhh
+#2019-02-05-19-33-30
+
+export LANGUAGE=zh_CN.UTF-8
+
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export SDL_IM_MODULE=fcitx
+#Append SDL_IM_MODULE=fcitx for some games (like Dota2) that use a vendor-modified version of SDL2 library.
+
+#2022-01018-23-06-00
+# 感觉进入x环境需要自启的app可以放在这里来写
+# 然后环境变量去.pam_environment 里面定义
+# 算了，环境变量也放在这里吧，先不改
+# 这样子的话，就算那天心血来潮想用个display manager也可以很方便
+# 而且，万一那天没不用i3了呢对吧，
+# 到时候我还是需要自启nm-applet和nutstore对吧
+nm-applet &
+fcitx5 &
+nutstore &

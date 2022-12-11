@@ -1,0 +1,58 @@
+{
+  "log": {
+    "access": "/tmp/v2ray/_access.log",
+    "error": "/tmp/v2ray/_error.log",
+    "loglevel": "info"
+  },
+
+  "inbounds": [{
+    "port": 29845,
+    "listen": "127.0.0.1",
+    "protocol": "socks"
+    }
+  ],
+
+  "outbounds":
+  [
+    {
+    "protocol": "vmess",
+    "settings":
+      {
+      "vnext":
+      [
+	{
+        "address": "67.209.188.79",
+        "port": 5544,
+        "users":
+	[
+          {
+            "id": "52f1415512a040caa1009f6e50d4c1f4",
+            "alterId": 4,
+	    "security": "auto",
+	    "level": 4
+          }
+        ]
+        }
+      ]
+      }
+    },
+    {
+    "protocol": "freedom",
+    "tag": "direct",
+    "settings": {}
+    }
+  ],
+
+  "routing":
+    {
+    "domainStrategy": "IPOnDemand",
+    "rules":
+    [
+      {
+      "type": "field",
+      "ip": ["geoip:private"],
+      "outboundTag": "direct"
+      }
+    ]
+    }
+}

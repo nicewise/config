@@ -1,0 +1,183 @@
+if has("autocmd")
+    filetype plugin indent on
+endif
+"可能autocmd是比较后面
+"的版本的VIM才有的特性，
+"或者是编译的时候有选项吧！
+"下面的syntax应该也是相同的情况
+
+
+if has("autocmd")
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
+if has("syntax")
+    syntax on
+endif
+
+if has('mouse')
+  set mouse=a
+endif
+
+colorscheme desert
+set helplang=cn
+
+set fileencodings=utf8,cp936,gb18030,big5
+
+
+set number "設置行號
+set cursorline "高亮當前行
+"set cursorcolumn "高亮當前列
+set encoding=utf-8
+set showcmd
+set showmode
+set hlsearch
+"set ruler
+"就是會在右下角顯示光標所在的行數、列數，但是在中文上，列數看不懂=0_0=!
+"設置括號、引號自動補全
+inoremap ' ''<ESC>i
+inoremap " ""<ESC>i
+inoremap ( ()<ESC>i
+inoremap ) ()<ESC>a
+inoremap [ []<ESC>i
+inoremap ] []<ESC>a
+"inoremap { {<CR>}<ESC>0 "這是程序員用的吧，自動補全並換行縮進
+inoremap { {}<ESC>i
+inoremap } {}<ESC>a
+inoremap ” “”<ESC>i
+inoremap “ “”<ESC>i
+
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+map <F5> :call CompileRunGcc()<CR>
+    func! CompileRunGcc()
+        exec "w"
+if &filetype == 'c'
+        exec "!gcc % -o %<"
+        exec "!time ./%<"
+elseif &filetype == 'cpp'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+elseif &filetype == 'sh'
+        :!time bash -x %
+elseif &filetype == 'python'
+        exec "!time python3 %"
+elseif &filetype == 'tex'
+        exec "!time xelatex %"
+elseif &filetype == 'julia'
+        exec "!time julia %"
+endif
+    endfunc
+
+
+au BufNewFile,BufRead *.py
+\ set tabstop=4 |
+\ set softtabstop=4 |
+\ set shiftwidth=4 |
+"\ set textwidth=79 |
+\ set expandtab |
+\ set autoindent |
+\ set fileformat=unix
+
+au BufNewFile,BufRead *.jl
+\ set tabstop=4 |
+\ set softtabstop=4 |
+\ set shiftwidth=4 |
+"\ set textwidth=79 |
+\ set expandtab |
+\ set autoindent |
+\ set fileformat=unix
+
+au BufNewFile,BufRead *.tex
+\ set tabstop=4 |
+\ set softtabstop=4 |
+\ set shiftwidth=4 |
+\ set expandtab |
+\ set noautoindent |
+\ set nosmartindent |
+\ set fileformat=unix
+
+
+
+"設置了(軟)製表符的寬度爲4，我也不知道軟是什麼意思=_=
+"set tabstop=4
+"set softtabstop=4
+
+
+"set shiftwidth=4 "設置縮進的空格爲4
+"設置自動縮進、不知道smart與否有什麼差別
+"set autoindent
+"set smartindent
+"set expandtab "tap自動轉爲空格
+
+"設置C/C++語言的自動縮進
+"C語言有分號;作爲結尾，所以縮進是用括號判斷的
+"這裏如果直接設置這樣的話，就很煩，我要寫成if的形式，但是我還不會，以後再說！
+"set cindent
+
+
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+"Note that --sync flag is used to block the execution until the installer finishes.
+"
+"(If you're behind an HTTP proxy, you may need to add --insecure option to the curl command. In that case, you also need to set $GIT_SSL_NO_VERIFY to true.)
+
+
+
+call plug#begin('~/.vim/bundle')
+Plug 'bitc/vim-bad-whitespace'
+Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
+"Uncomment to override defaults:
+"let g:instant_markdown_slow = 1
+"let g:instant_markdown_autostart = 0
+"let g:instant_markdown_open_to_the_world = 1
+"let g:instant_markdown_allow_unsafe_content = 1
+"let g:instant_markdown_allow_external_content = 0
+let g:instant_markdown_mathjax = 1
+"let g:instant_markdown_logfile = '/tmp/instant_markdown.log'
+"let g:instant_markdown_autoscroll = 0
+"let g:instant_markdown_port = 8888
+"let g:instant_markdown_python = 1
+
+Plug 'lervag/vimtex', { 'for': 'tex' }
+let g:tex_flavor='xelatex'
+let g:vimtex_view_method='zathura'
+let g:vimtex_quickfix_mode=0
+set conceallevel=1
+let g:tex_conceal='abdmg'
+
+"Plug 'sirver/ultisnips', { 'on': 'Ultisnips' }
+Plug 'sirver/ultisnips'
+let g:UltiSnipsExpandTrigger = '<tab>'
+let g:UltiSnipsJumpForwardTrigger = '<tab>'
+let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+"let g:UltiSnipsEditSplit = 
+
+Plug 'JuliaEditorSupport/julia-vim', {'for': 'julia'}
+Plug 'mattn/emmet-vim'
+let g:user_emmet_mod='a'
+let g:user_emmet_install_global = 0
+autocmd FileType html,css EmmetInstall
+
+call plug#end()
+
+au BufNewFile,BufRead *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+
+set laststatus=2  "总是显示状态栏
+highlight StatusLine cterm=bold ctermfg=yellow ctermbg=black
+function! CurDir()
+	let curdir = substitute(getcwd(), $HOME, "~", "g")
+	return curdir
+endfunction
+set statusline=[%n]\ %f%m%r%h\ \|\ \ pwd:\ %{CurDir()}\ \ \|%=%l,%c\ %p%%
+"set statusline=[%n]\ %f%m%r%h\ \|\ \ pwd:\ %{CurDir()}\ \ \|%=\|\ %l,%c\ %p%%\ \|\ ascii=%b,hex=%b%{((&fenc==\"\")?\"\":\"\ \|\ \".&fenc)}\ \|\ %{$USER}\ @\ %{hostname()}\
+" 或以下两句
+"set statusline=[%F]%y%r%m%*%=[Line:%l/%L,Column:%c][%p%%] "显示文件名：总行数，总的字符数
+"set ruler "在编辑过程中，在右下角显示光标位置的状态行

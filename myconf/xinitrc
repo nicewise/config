@@ -1,0 +1,15 @@
+#!/bin/sh
+
+#export LANGUAGE=zh_CN.UTF-8
+#
+#GTK_IM_MODULE=fcitx
+#QT_IM_MODULE=fcitx
+#XMODIFIERS='@im=fcitx'
+[ -f ~/.xprofile ] && . ~/.xprofile
+xrdb ~/.Xresources
+
+#exec fvwm
+#exec awesome
+#exec startplasma-x11
+#exec startxfce4
+exec i3
