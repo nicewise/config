@@ -44,15 +44,16 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 #bindsym $mod+Control+Right exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 ###2022-01-20-13-57-00
-bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl s 20%-
-bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl s +20%
+#bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl s 20%-
+#bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl s +20%
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
-bindsym $mod+Return exec --no-startup-id xterm
+set $termi urxvt
+bindsym $mod+Return exec --no-startup-id $termi
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -231,6 +232,7 @@ for_window [class="Pcmanfm"] border none
 for_window [class="Zathura"] border none
 for_window [class="Gvim"] border none
 for_window [class="XTerm"] border none
+for_window [class="urxvt"] border none
 for_window [class="WizNote"] border none
 for_window [class="ParaView"] border none
 
