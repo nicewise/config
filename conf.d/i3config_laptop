@@ -28,7 +28,7 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 
 
 ##########Added by Sunhh###########
-exec_always --no-startup-id feh --bg-scale "$HOME/myconf/bg.jpg"
+exec_always --no-startup-id feh --bg-scale "$HOME/config/conf.d/bg.jpg"
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -44,8 +44,8 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 #bindsym $mod+Control+Right exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 ###2022-01-20-13-57-00
-#bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl s 20%-
-#bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl s +20%
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl s 20%-
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl s +20%
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod

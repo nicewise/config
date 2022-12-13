@@ -17,10 +17,10 @@ fi
 #ln -sf $gitdir/conf.d/i3config_workstation .config/i3/config
 #choose one according to tour situation and uncomment it.
 
-if [ ! -d .emacs ];then
-	mkdir .emacs
+if [ ! -d .emacs.d ];then
+	mkdir .emacs.d
 fi
-ln -sf $gitdir/conf.d/init.el .emacs/init.el
+ln -sf $gitdir/conf.d/init.el .emacs.d/init.el
 
 #sudo ln -sf $gitdir/conf.d/30-touchpad.conf /etc/X11/xorg.conf.d/30-touchpad.conf
 #uncomment this if necessary
