@@ -231,8 +231,9 @@ for_window [class="Pcmanfm"] border none
 for_window [class="Pcmanfm"] border none
 for_window [class="Zathura"] border none
 for_window [class="Gvim"] border none
+for_window [class="Emacs"] border none
 for_window [class="XTerm"] border none
-for_window [class="urxvt"] border none
+for_window [class="URxvt"] border none
 for_window [class="WizNote"] border none
 for_window [class="ParaView"] border none
 
