@@ -28,7 +28,7 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 
 
 ##########Added by Sunhh###########
-exec_always --no-startup-id feh --bg-scale "$HOME/myconf/bg.jpg"
+exec_always --no-startup-id feh --bg-scale "$HOME/config/conf.d/bg.jpg"
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
