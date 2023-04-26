@@ -3,8 +3,14 @@
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (global-display-line-numbers-mode t)
+(global-visual-line-mode t)
 (global-auto-revert-mode t)
 (setq auto-revert-interval 5)
+
+;; proxy
+(setq url-proxy-services
+      '(("http"     . "127.0.0.1:7890")
+        ("no_proxy" . "^\\(localhost\\|10.*\\)")))
 
 ;; packages
 (setq package-archives '(("gnu"   . "http://mirror.nju.edu.cn/elpa/gnu/")
@@ -16,7 +22,9 @@
 		      helm-bibtex
 		      cdlatex
 		      auctex
-                      rainbow-delimiters))
+		      valign
+                      rainbow-delimiters
+		      org-fragtog))
 
 (dolist (p my-packages)
   (unless (package-installed-p p)
@@ -49,6 +57,9 @@
       (quote
        ((auto-mode . emacs)
 	("\\.pdf\\'" . "zathura %s"))))
+;; 表格对齐
+(add-hook 'org-mode-hook #'valign-mode)
+; 上面这个好像说处理大型表格不太行，alternative: https://github.com/TobiasZawada/orgplus-align-tables
 
 ;; org-ref
 (setq bibtex-completion-bibliography '("~/notes/ref.bib")
@@ -96,6 +107,10 @@
 (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link-hydra/body)
 
 ;; org-latex
+(add-hook 'org-mode-hook 'org-fragtog-mode)
+(setq org-startup-with-latex-preview t)
+(setq org-startup-with-inline-images t)
+(setq org-startup-folded t)
 (setq org-preview-latex-default-process 'dvisvgm)
 (defun my/text-scale-adjust-latex-previews ()
   "Adjust the size of latex preview fragments when changing the
@@ -158,7 +173,9 @@ buffer's text scale."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files '("~/notes/reading.org")))
+ '(org-agenda-files '("~/notes/reading.org"))
+ '(package-selected-packages
+   '(org-fragtog valign rainbow-delimiters org-ref magit julia-mode helm-bibtex cdlatex auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
