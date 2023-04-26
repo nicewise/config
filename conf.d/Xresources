@@ -1,4 +1,4 @@
-Xft.dpi: 96
+Xft.dpi: 144
 Xft.autohint: 0
 Xft.lcdfilter:  lcddefault
 Xft.hintstyle:  hintfull
@@ -122,5 +122,5 @@ URxvt.saveLines:3000
 !!边框
 URxvt.borderLess:False
 !!字体设置
-URxvt.font:xft:Source Code Pro:antialias=True:pixelsize=18,xft:WenQuanYi Zen Hei:pixelsize=18
-URxvt.boldfont:xft:Source Code Pro:antialias=True:pixelsize=18,xft:WenQuanYi Zen Hei:pixelsize=18
+URxvt.font:xft:Source Code Pro:antialias=True:pixelsize=30,xft:WenQuanYi Zen Hei:pixelsize=30
+URxvt.boldfont:xft:Source Code Pro:antialias=True:pixelsize=30,xft:WenQuanYi Zen Hei:pixelsize=30

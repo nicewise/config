@@ -1,12 +1,11 @@
 {
   "log": {
-    "access": "/tmp/v2ray/_access.log",
-    "error": "/tmp/v2ray/_error.log",
-    "loglevel": "info"
+    "loglevel": "warning",
+    "access": "/var/log/v2ray/access.log",
+    "error": "/var/log/v2ray/error.log"
   },
-
   "inbounds": [{
-    "port": 29845,
+    "port": 24598,
     "listen": "127.0.0.1",
     "protocol": "socks"
     }
@@ -22,12 +21,12 @@
       [
 	{
         "address": "67.209.188.79",
-        "port": 5544,
+        "port": 2333,
         "users":
 	[
           {
-            "id": "52f1415512a040caa1009f6e50d4c1f4",
-            "alterId": 4,
+            "id": "A23620DC-82C8-FBE8-5CA0-B1FC17C3C04C",
+            "alterId": 64,
 	    "security": "auto",
 	    "level": 4
           }
