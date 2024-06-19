@@ -25,5 +25,5 @@ ln -sf $gitdir/conf.d/init.el .emacs.d/init.el
 #uncomment this if necessary
 
 
-sudo cp $gitdir/conf.d/config.json /etc/v2ray/
+#sudo cp $gitdir/conf.d/config.json /etc/v2ray/
 #uncomment this if necessary

@@ -6,11 +6,13 @@
 (global-visual-line-mode t)
 (global-auto-revert-mode t)
 (setq auto-revert-interval 5)
+(setq inhibit-splash-screen t)
+(setq initial-scratch-message nil)
 
 ;; proxy
-(setq url-proxy-services
-      '(("http"     . "127.0.0.1:7890")
-        ("no_proxy" . "^\\(localhost\\|10.*\\)")))
+;;(setq url-proxy-services
+;;      '(("http"     . "127.0.0.1:7890")
+;;        ("no_proxy" . "^\\(localhost\\|10.*\\)")))
 
 ;; packages
 (setq package-archives '(("gnu"   . "http://mirror.nju.edu.cn/elpa/gnu/")
@@ -29,6 +31,9 @@
 (dolist (p my-packages)
   (unless (package-installed-p p)
     (package-install p)))
+(use-package rime
+  :custom
+  (default-input-method "rime"))
 
 ;; helm
 (global-set-key (kbd "M-x") #'helm-M-x)
@@ -175,7 +180,7 @@ buffer's text scale."
  ;; If there is more than one, they won't work right.
  '(org-agenda-files '("~/notes/reading.org"))
  '(package-selected-packages
-   '(org-fragtog valign rainbow-delimiters org-ref magit julia-mode helm-bibtex cdlatex auctex)))
+   '(rime org-fragtog valign rainbow-delimiters org-ref magit julia-mode helm-bibtex cdlatex auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
