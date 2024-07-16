@@ -14,7 +14,7 @@ if [ ! -d .config/i3 ];then
 fi
 #ln -sf $gitdir/conf.d/i3config_laptop .config/i3/config
 ln -sf $gitdir/conf.d/i3config_workstation .config/i3/config
-#choose one according to tour situation and uncomment it.
+#choose one according to your situation and uncomment it.
 
 if [ ! -d .emacs.d ];then
 	mkdir .emacs.d

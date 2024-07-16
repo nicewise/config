@@ -9,11 +9,6 @@
 (setq inhibit-splash-screen t)
 (setq initial-scratch-message nil)
 
-;; proxy
-;;(setq url-proxy-services
-;;      '(("http"     . "127.0.0.1:7890")
-;;        ("no_proxy" . "^\\(localhost\\|10.*\\)")))
-
 ;; packages
 (setq package-archives '(("gnu"   . "http://mirror.nju.edu.cn/elpa/gnu/")
                          ("melpa" . "http://mirror.nju.edu.cn/elpa/melpa/")))
@@ -173,6 +168,13 @@ buffer's text scale."
  '((python . t)
    (julia . t)
    (emacs-lisp . t)))
+;; shell-mode
+;https://www.cnblogs.com/liweilijie/archive/2013/01/11/2856208.html
+(setq shell-file-name "/usr/bin/bash")
+;(autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
+;(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on t) ;没用
+(global-set-key (kbd "C-c z") 'shell)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -180,7 +182,8 @@ buffer's text scale."
  ;; If there is more than one, they won't work right.
  '(org-agenda-files '("~/notes/reading.org"))
  '(package-selected-packages
-   '(rime org-fragtog valign rainbow-delimiters org-ref magit julia-mode helm-bibtex cdlatex auctex)))
+   '(matlab-mode rime org-fragtog valign rainbow-delimiters org-ref magit julia-mode helm-bibtex cdlatex auctex))
+ '(send-mail-function 'smtpmail-send-it))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
