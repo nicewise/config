@@ -12,4 +12,5 @@ xrdb ~/.Xresources
 #exec awesome
 #exec startplasma-x11
 #exec startxfce4
+xrandr --output HDMI-0 --auto --output DP-0 --auto --right-of HDMI-0
 exec i3

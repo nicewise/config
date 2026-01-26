@@ -30,19 +30,18 @@ conky.config = {
 
     -- number of cpu samples to average
     -- set to 1 to disable averaging
-    cpu_avg_samples = 2,
+    cpu_avg_samples = 6,
 };
 
 conky.text = [[
 [
-    { "full_text" : ${if_up enp0s25}" ${addr enp0s25}  ${upspeed enp0s25}/s  ${downspeed enp0s25}/s"${else}""${endif}, "color" : "\#94F397" },
-    #{ "full_text" : ${if_up eth0}"  ${upspeed enp0s31f6}/s  ${downspeed enp0s31f6}/s"${else}""${endif}, "color" : "\#94F397" },
-    { "full_text" : ${if_up wlp1s0}" ${addr wlp1s0}  ${upspeed wlp1s0}/s  ${downspeed wlp1s0}/s"${else}""${endif}, "color" : "\#94F397" },
-    #{ "full_text" : " ${cpu cpu0}%" , "color" : "\#8BC3E7" },
+    { "full_text" : ${if_up eno1}" ${addr eno1}  ${upspeed eno1}/s  ${downspeed eno1}/s"${else}""${endif}, "color" : "\#94F397" },
+    { "full_text" : ${if_up wlp0s20f3}"  ${addr wlp0s20f3} ${upspeed wlp0s20f3}/s  ${downspeed wlp0s20f3}/s"${else}""${endif}, "color" : "\#94F397" },
+    { "full_text" : " ${cpu cpu0}%" , "color" : "\#8BC3E7" },
     { "full_text" : " ${mem}/${memmax}" , "color" : "\#B987D9" },
     #{ "full_text" : " ${mem}${color white}|${color}${memmax}" , "color" : "\#B987D9" },
-    #{ "full_text" : " ${fs_used_perc /}%" , "color" : "\#FF9D17" },
-    { "full_text" : " ${battery_percent}% ${battery_status}" , "color" : "\#A4DC6A" },
+    { "full_text" : " ${fs_used_perc /}%" , "color" : "\#FF9D17" },
+    #{ "full_text" : " ${battery_percent}% ${battery_status}" , "color" : "\#A4DC6A" },
     { "full_text" : " ${pa_sink_volumebar}${pa_sink_volume}%" , "color" : "\#ff797b" },
 #    
     { "full_text" : " ${time %Y/%m/%d %a}" , "color" : "\#ffc125" },

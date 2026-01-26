@@ -1,0 +1,55 @@
+# ~/.zshrc
+# =================================================
+[[ -o interactive ]] || return
+
+# ---------- 基本选项 ----------
+setopt auto_cd
+setopt interactive_comments
+setopt hist_ignore_dups
+setopt share_history
+
+# ---------- 补全 ----------
+autoload -Uz compinit
+compinit
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
+# ---------- Alias ----------
+alias ls='ls --color=auto'
+alias l='ls -F'
+alias ll='ls -lhF'
+alias la='ls -a'
+alias lh='ls -alhF'
+
+alias grep='grep --color=auto'
+alias wifi='nmcli device wifi'
+alias shutdown='shutdown -h now'
+alias vim='emacs -nw'
+
+alias pacs='sudo pacman -S'
+alias Syu='sudo pacman -Syu'
+alias Syy='sudo pacman -Syy'
+alias Ss='pacman -Ss'
+alias Sr='sudo pacman -R'
+
+alias cpu="cat /proc/cpuinfo | grep MHz | uniq"
+
+# Julia
+alias jthreads="export JULIA_NUM_THREADS=6"
+alias julia="julia --threads 10"
+alias juliap="julia --project=."
+
+# Brightness
+alias bdn="brightness s 20%-"
+alias bup="brightness s +20%"
+
+# Git
+alias adog="git log --all --decorate --oneline --graph"
+
+# Conda
+alias conda='/opt/anaconda/bin/conda'
+
+# ---------- Prompt（简单、稳定、可读） ----------
+# 绿色用户名 + 蓝色路径 + $
+PROMPT='%K{green}%n%k %F{39}%~%f %F{70}$%f '
