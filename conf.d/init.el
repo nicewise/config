@@ -56,164 +56,6 @@
   :after helm
   :bind (("C-c h" . helm-bibtex)))
 
-;;;* Org mode
-(use-package org
-  :ensure nil
-  :init
-  (setq org-directory "~/notes"
-        org-default-notes-file "~/notes/quicknote.org"
-        org-agenda-files '("~/notes"))
-  :bind (("C-c l" . org-store-link)
-         ("C-c a" . org-agenda)
-         ("C-c c" . org-capture))
-  :config
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCELLED(c)")))
-
-  (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/notes/quicknote.org" "Tasks")
-           "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+olp+datetree "~/notes/dairy.org")
-           "* %?\nEntered on %U\n  %i\n  %a")
-          ("n" "note" entry (file "~/notes/quicknote.org")
-           "* %? :NOTE:\n%U\n%a\n")))
-
-  (setq org-file-apps
-        '((auto-mode . emacs)
-          ("\\.pdf\\'" . "zathura %s")))
-
-  (setq org-startup-with-latex-preview t
-	org-startup-with-inline-images t
-	org-startup-folded t
-	org-preview-latex-default-process 'dvisvgm)
-
-  (setq org-format-latex-options
-	(plist-put org-format-latex-options :scale 1.6))
-  (setq org-format-latex-options
-	(plist-put org-format-latex-options
-                   :foreground (face-foreground 'default)))
-  (setq org-format-latex-options
-	(plist-put org-format-latex-options
-                   :background (face-background 'default))))
-
-;; 表格对齐
-(use-package valign
-  :hook (org-mode . valign-mode))
-; 上面这个好像说处理大型表格不太行，alternative: https://github.com/TobiasZawada/orgplus-align-tables
-
-;;;* Org-ref / Bibtex
-(use-package bibtex
-  :ensure nil
-  :config
-  (setq bibtex-autokey-year-length 4
-	bibtex-autokey-name-year-separator "-"
-	bibtex-autokey-year-title-separator "-"
-	bibtex-autokey-titleword-separator "-"
-	bibtex-autokey-titlewords 2
-	bibtex-autokey-titlewords-stretch 1
-	bibtex-autokey-titleword-length 5))
-
-(use-package org-ref
-  :after org
-  :config
-  (setq bibtex-completion-bibliography '("~/notes/ref.bib"
-					 "~/paper/01/fifth.bib"
-					 "~/paper/00/confining.bib")
-	bibtex-completion-library-path '("~/Research/")
-					;bibtex-completion-pdf-field "File"
-	bibtex-completion-find-additional-pdfs t
-	bibtex-completion-pdf-extension '(".pdf" ".djvu" ".ps")
-	bibtex-completion-pdf-open-function
-	(lambda (fpath)
-	  (call-process "zathura" nil 0 nil fpath))
-	bibtex-completion-pdf-symbol "⌘"
-	bibtex-completion-notes-symbol "✎"
-	bibtex-completion-notes-path "~/notes/reading.org"
-	bibtex-completion-notes-template-one-file
-	(concat
-	 "** ${title}\n"
-	 "    :PROPERTIES:\n"
-	 "      :Custom_ID: ${=key=}\n"
-	 "      :AUTHOR: ${author-or-editor}\n"
-	 "      :JOURNAL: ${journal}\n"
-	 "      :YEAR: ${year}\n"
-	 "      :DOI: ${doi}\n"
-	 "      :URL: ${url}\n"
-	 "    :END:\n\n"
-	 "[[cite:&${=key=}]]\n"
-	 )
-	bibtex-completion-additional-search-fields '(keywords)
-	bibtex-completion-display-formats
-	`((t . ,(concat
-		 "${=has-pdf=:1}${=has-note=:1} "
-		 "[${=key=}] "
-		 "${author:15} "
-		 "${title:*}"))))
-  (with-eval-after-load 'bibtex
-    (define-key bibtex-mode-map (kbd "C-c ]") #'org-ref-bibtex-hydra/body))
-  (with-eval-after-load 'org
-    (define-key org-mode-map (kbd "C-c ]") #'org-ref-insert-link-hydra/body)))
-
-;;;* Org LaTeX
-(use-package org-fragtog
-  :hook (org-mode . org-fragtog-mode))
-
-(defun my/text-scale-adjust-latex-previews ()
-  "Adjust the size of latex preview fragments when changing the
-buffer's text scale."
-  (pcase major-mode
-    ('latex-mode
-     (dolist (ov (overlays-in (point-min) (point-max)))
-       (when (eq (overlay-get ov 'category)
-		 'preview-overlay)
-         (my/text-scale--resize-fragment ov))))
-    ('org-mode
-     (dolist (ov (overlays-in (point-min) (point-max)))
-       (when (eq (overlay-get ov 'org-overlay-type)
-		 'org-latex-overlay)
-         (my/text-scale--resize-fragment ov))))))
-(defun my/text-scale--resize-fragment (ov)
-  (overlay-put
-   ov 'display
-   (cons 'image
-         (plist-put
-          (cdr (overlay-get ov 'display))
-          :scale (+ 1.0 (* 0.25 text-scale-mode-amount))))))
-(add-hook 'text-scale-mode-hook #'my/text-scale-adjust-latex-previews)
-
-;; org-latex-export
-(with-eval-after-load 'ox-latex
-  (setq org-latex-default-packages-alist nil
-        org-latex-packages-alist nil
-        org-latex-hyperref-template nil
-        org-latex-compiler "xelatex"))
-
-;;;* Org Babel
-(with-eval-after-load 'org
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((python . t)
-     (julia . t)
-     (calc . t)
-     (emacs-lisp . t))))
-
-;;;* Vterm
-(use-package vterm
-  :commands vterm
-  :config
-  (setq vterm-shell "/usr/bin/zsh")
-
-  ;; 回滚历史行数
-  (setq vterm-max-scrollback 10000)
-
-  ;; 不让 vterm 抢 Emacs 的 M-x 等键
-  (setq vterm-keymap-exceptions
-        '("C-c" "C-x" "C-u" "M-x" "M-o" "M-p" "M-n")))
-
-(use-package vterm-toggle
-  :bind (("C-<return>" . vterm-toggle)
-         ("C-c t"      . vterm-toggle)))
-
 ;;;* Evil mode
 (use-package evil
   :init
@@ -334,6 +176,183 @@ Kill current buffer without saving; if multiple windows, still just close this v
   (evil-ex-define-cmd "wqa" (lambda () (interactive)
                               (save-some-buffers t)
                               (save-buffers-kill-terminal))))
+
+;;;* Org mode
+(use-package org
+  :ensure nil
+  :init
+  (setq org-directory "~/notes"
+        org-default-notes-file "~/notes/quicknote.org"
+        org-agenda-files '("~/notes"))
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda)
+         ("C-c c" . org-capture))
+  :config
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCELLED(c)")))
+
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/notes/quicknote.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+olp+datetree "~/notes/dairy.org")
+           "* %?\nEntered on %U\n  %i\n  %a")
+          ("n" "note" entry (file "~/notes/quicknote.org")
+           "* %? :NOTE:\n%U\n%a\n")))
+
+  (setq org-file-apps
+        '((auto-mode . emacs)
+          ("\\.pdf\\'" . "zathura %s")))
+
+  (setq org-startup-with-latex-preview t
+	org-startup-with-inline-images t
+	org-startup-folded t
+	org-preview-latex-default-process 'dvisvgm)
+
+  (setq org-format-latex-options
+	(plist-put org-format-latex-options :scale 1.6))
+  (setq org-format-latex-options
+	(plist-put org-format-latex-options
+                   :foreground (face-foreground 'default)))
+  (setq org-format-latex-options
+	(plist-put org-format-latex-options
+                   :background (face-background 'default))))
+
+;; 表格对齐
+(use-package valign
+  :hook (org-mode . valign-mode))
+; 上面这个好像说处理大型表格不太行，alternative: https://github.com/TobiasZawada/orgplus-align-tables
+
+;;;* Org-ref / Bibtex
+(use-package bibtex
+  :ensure nil
+  :config
+  (setq bibtex-autokey-year-length 4
+	bibtex-autokey-name-year-separator "-"
+	bibtex-autokey-year-title-separator "-"
+	bibtex-autokey-titleword-separator "-"
+	bibtex-autokey-titlewords 2
+	bibtex-autokey-titlewords-stretch 1
+	bibtex-autokey-titleword-length 5))
+
+(use-package org-ref
+  :after org
+  :config
+  (setq bibtex-completion-bibliography '("~/notes/ref.bib"
+					 "~/paper/01/fifth.bib"
+					 "~/paper/00/confining.bib")
+	bibtex-completion-library-path '("~/Research/")
+					;bibtex-completion-pdf-field "File"
+	bibtex-completion-find-additional-pdfs t
+	bibtex-completion-pdf-extension '(".pdf" ".djvu" ".ps")
+	bibtex-completion-pdf-open-function
+	(lambda (fpath)
+	  (call-process "zathura" nil 0 nil fpath))
+	bibtex-completion-pdf-symbol "⌘"
+	bibtex-completion-notes-symbol "✎"
+	bibtex-completion-notes-path "~/notes/reading.org"
+	bibtex-completion-notes-template-one-file
+	(concat
+	 "** ${title}\n"
+	 "    :PROPERTIES:\n"
+	 "      :Custom_ID: ${=key=}\n"
+	 "      :AUTHOR: ${author-or-editor}\n"
+	 "      :JOURNAL: ${journal}\n"
+	 "      :YEAR: ${year}\n"
+	 "      :DOI: ${doi}\n"
+	 "      :URL: ${url}\n"
+	 "    :END:\n\n"
+	 "[[cite:&${=key=}]]\n"
+	 )
+	bibtex-completion-additional-search-fields '(keywords)
+	bibtex-completion-display-formats
+	`((t . ,(concat
+		 "${=has-pdf=:1}${=has-note=:1} "
+		 "[${=key=}] "
+		 "${author:15} "
+		 "${title:*}"))))
+  (with-eval-after-load 'bibtex
+    (define-key bibtex-mode-map (kbd "C-c ]") #'org-ref-bibtex-hydra/body))
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "C-c ]") #'org-ref-insert-link-hydra/body)))
+
+;;;* Org LaTeX
+(use-package org-fragtog
+  :hook (org-mode . org-fragtog-mode)
+  :defer t)
+(with-eval-after-load 'evil
+  (defun shh/org-fragtog-evil-control ()
+    "Enable org-fragtog only in emacs/insert state, disable in normal."
+    (when (and (derived-mode-p 'org-mode)
+               (boundp 'org-fragtog-mode))
+      (pcase evil-state
+        ('normal
+         (when org-fragtog-mode
+           (org-fragtog-mode -1)))
+        ((or 'insert 'emacs)
+         (unless org-fragtog-mode
+           (org-fragtog-mode 1)))
+        (_ nil))))
+
+  ;; 在 evil 状态变化后执行
+  (add-hook 'evil-normal-state-entry-hook #'shh/org-fragtog-evil-control)
+  (add-hook 'evil-insert-state-entry-hook #'shh/org-fragtog-evil-control)
+  (add-hook 'evil-emacs-state-entry-hook  #'shh/org-fragtog-evil-control))
+
+(defun my/text-scale-adjust-latex-previews ()
+  "Adjust the size of latex preview fragments when changing the
+buffer's text scale."
+  (pcase major-mode
+    ('latex-mode
+     (dolist (ov (overlays-in (point-min) (point-max)))
+       (when (eq (overlay-get ov 'category)
+		 'preview-overlay)
+         (my/text-scale--resize-fragment ov))))
+    ('org-mode
+     (dolist (ov (overlays-in (point-min) (point-max)))
+       (when (eq (overlay-get ov 'org-overlay-type)
+		 'org-latex-overlay)
+         (my/text-scale--resize-fragment ov))))))
+(defun my/text-scale--resize-fragment (ov)
+  (overlay-put
+   ov 'display
+   (cons 'image
+         (plist-put
+          (cdr (overlay-get ov 'display))
+          :scale (+ 1.0 (* 0.25 text-scale-mode-amount))))))
+(add-hook 'text-scale-mode-hook #'my/text-scale-adjust-latex-previews)
+
+;; org-latex-export
+(with-eval-after-load 'ox-latex
+  (setq org-latex-default-packages-alist nil
+        org-latex-packages-alist nil
+        org-latex-hyperref-template nil
+        org-latex-compiler "xelatex"))
+
+;;;* Org Babel
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (julia . t)
+     (calc . t)
+     (emacs-lisp . t))))
+
+;;;* Vterm
+(use-package vterm
+  :commands vterm
+  :config
+  (setq vterm-shell "/usr/bin/zsh")
+
+  ;; 回滚历史行数
+  (setq vterm-max-scrollback 10000)
+
+  ;; 不让 vterm 抢 Emacs 的 M-x 等键
+  (setq vterm-keymap-exceptions
+        '("C-c" "C-x" "C-u" "M-x" "M-o" "M-p" "M-n")))
+
+(use-package vterm-toggle
+  :bind (("C-<return>" . vterm-toggle)
+         ("C-c t"      . vterm-toggle)))
 
 ;;;* Dired
 (use-package dired
