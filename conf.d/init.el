@@ -1,4 +1,4 @@
-;; emacs
+;;;* Emacs
 (tool-bar-mode 0)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
@@ -7,8 +7,18 @@
 (global-auto-revert-mode t)
 (setq auto-revert-interval 5)
 (setq inhibit-splash-screen t)
+(setq initial-major-mode 'org-mode)
 (setq initial-scratch-message nil)
 
+;;;* Packages
+;(setq package-archives '(("gnu"   . "http://mirror.nju.edu.cn/elpa/gnu/")
+;                         ("melpa" . "http://mirror.nju.edu.cn/elpa/melpa/")))
+(setq package-archives
+      '(("gnu"   . "https://elpa.gnu.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")))
+(setq use-package-always-ensure t)
+
+;;;* Fonts
 (when (display-graphic-p)
   ;; 英文字体（height=140 表示 14pt 左右，你可以改 160/180）
   (set-face-attribute 'default nil
@@ -22,168 +32,146 @@
   ;; 如果你觉得中文偏小/偏大，用这一行微调中文比例：
   ;; 例如 1.1 让中文稍大一点，0.95 让中文稍小一点
   (setq face-font-rescale-alist
-        '(("WenQuanYi Zen Hei Mono" . 1.05)))
+        '(("WenQuanYi Zen Hei Mono" . 1.05))))
 
-  ;; 黑底白字
-  (set-face-attribute 'default nil
-                      :background "#2b2b2b"
-                      :foreground "#dcdccc")
-  ;; 关键字（function, struct, if, end）
-  (set-face-attribute 'font-lock-keyword-face nil
-                      :foreground "#96cbfe"  ;; 柔蓝
-                      :weight 'bold)
+;;;* Theme
+(use-package doom-themes
+  :config
+  ;; 启用一个主题
+  (load-theme 'doom-zenburn t)
 
-  ;; 函数名
-  (set-face-attribute 'font-lock-function-name-face nil
-                      :foreground "#ffd2a7") ;; 偏黄
+  ;; （可选，但推荐）更好的 org / diff / treemacs 支持
+  (doom-themes-org-config)
+  (doom-themes-visual-bell-config))
 
-  ;; 类型 / struct / abstract
-  (set-face-attribute 'font-lock-type-face nil
-                      :foreground "#ffffb6") ;; 淡黄
+;;;* Helm
+(use-package helm
+  :bind (("M-x"     . helm-M-x)
+         ("C-x r b" . helm-filtered-bookmarks)
+         ("C-x C-f" . helm-find-files))
+  :init
+  (helm-mode 1))
 
-  ;; 变量名
-  (set-face-attribute 'font-lock-variable-name-face nil
-                      :foreground "#dcdccc")
+(use-package helm-bibtex
+  :after helm
+  :bind (("C-c h" . helm-bibtex)))
 
-  ;; 字符串
-  (set-face-attribute 'font-lock-string-face nil
-                      :foreground "#a8ff60") ;; Vim 风绿
-
-  ;; 注释（不抢眼，但清楚）
-  (set-face-attribute 'font-lock-comment-face nil
-                      :foreground "#7f9f7f"
-                      :slant 'italic)
-
-  ;; 常量
-  (set-face-attribute 'font-lock-constant-face nil
-                      :foreground "#dca3a3"))
-
-;; packages
-;(setq package-archives '(("gnu"   . "http://mirror.nju.edu.cn/elpa/gnu/")
-;                         ("melpa" . "http://mirror.nju.edu.cn/elpa/melpa/")))
-(setq package-archives
-      '(("gnu"   . "https://elpa.gnu.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")))
-(package-initialize) ;; You might already have this line
-(defvar my-packages '(magit
-		      org-ref
-		      julia-mode
-		      helm-bibtex
-		      cdlatex
-		      auctex
-		      valign
-                      rainbow-delimiters
-		      org-fragtog
-		      matlab-mode
-		      vterm vterm-toggle
-		      evil evil-collection))
-
-(dolist (p my-packages)
-  (unless (package-installed-p p)
-    (package-install p)))
-
-;; helm
-(global-set-key (kbd "M-x") #'helm-M-x)
-(global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
-(global-set-key (kbd "C-x C-f") #'helm-find-files)
-(helm-mode 1)
-(global-set-key (kbd "C-c h") #'helm-bibtex)
-
-;; latex-mode
-(setq-default TeX-engine 'xetex)
-
-;; org-mode
-(setq org-directory "~/notes")
-(setq org-default-notes-file "~/notes/quicknote.org")
-(setq org-agenda-files '("~/notes"))
-(global-set-key (kbd "C-c l") #'org-store-link)
-(global-set-key (kbd "C-c a") #'org-agenda)
-(global-set-key (kbd "C-c c") #'org-capture)
-(with-eval-after-load 'org
+;;;* Org mode
+(use-package org
+  :ensure nil
+  :init
+  (setq org-directory "~/notes"
+        org-default-notes-file "~/notes/quicknote.org"
+        org-agenda-files '("~/notes"))
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda)
+         ("C-c c" . org-capture))
+  :config
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCELLED(c)"))))
-(setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/notes/quicknote.org" "Tasks")
-         "* TODO %?\n  %i\n  %a")
-        ("j" "Journal" entry (file+datetree "~/notes/dairy.org")
-         "* %?\nEntered on %U\n  %i\n  %a")
-	("n" "note" entry (file "~/notes/quicknote.org")
-         "* %? :NOTE:\n%U\n%a\n")))
-(setq org-file-apps
-      (quote
-       ((auto-mode . emacs)
-	("\\.pdf\\'" . "zathura %s"))))
+        '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCELLED(c)")))
+
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/notes/quicknote.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+olp+datetree "~/notes/dairy.org")
+           "* %?\nEntered on %U\n  %i\n  %a")
+          ("n" "note" entry (file "~/notes/quicknote.org")
+           "* %? :NOTE:\n%U\n%a\n")))
+
+  (setq org-file-apps
+        '((auto-mode . emacs)
+          ("\\.pdf\\'" . "zathura %s")))
+
+  (setq org-startup-with-latex-preview t
+	org-startup-with-inline-images t
+	org-startup-folded t
+	org-preview-latex-default-process 'dvisvgm)
+
+  (setq org-format-latex-options
+	(plist-put org-format-latex-options :scale 1.6))
+  (setq org-format-latex-options
+	(plist-put org-format-latex-options
+                   :foreground (face-foreground 'default)))
+  (setq org-format-latex-options
+	(plist-put org-format-latex-options
+                   :background (face-background 'default))))
+
 ;; 表格对齐
-(add-hook 'org-mode-hook #'valign-mode)
+(use-package valign
+  :hook (org-mode . valign-mode))
 ; 上面这个好像说处理大型表格不太行，alternative: https://github.com/TobiasZawada/orgplus-align-tables
 
-;; org-ref
-(setq bibtex-completion-bibliography '("~/notes/ref.bib"
-				       "~/paper/01/fifth.bib"
-				       "~/paper/00/confining.bib")
-      bibtex-completion-library-path '("~/Research/")
-      ;bibtex-completion-pdf-field "File"
-      bibtex-completion-find-additional-pdfs t
-      bibtex-completion-pdf-extension '(".pdf" ".djvu" ".ps")
-      bibtex-completion-pdf-open-function
-      (lambda (fpath)
-	(call-process "zathura" nil 0 nil fpath))
-      bibtex-completion-pdf-symbol "⌘"
-      bibtex-completion-notes-symbol "✎"
-      bibtex-completion-notes-path "~/notes/reading.org"
-      bibtex-completion-notes-template-one-file
-      (concat
-       "** ${title}\n"
-       "    :PROPERTIES:\n"
-       "      :Custom_ID: ${=key=}\n"
-       "      :AUTHOR: ${author-or-editor}\n"
-       "      :JOURNAL: ${journal}\n"
-       "      :YEAR: ${year}\n"
-       "      :DOI: ${doi}\n"
-       "      :URL: ${url}\n"
-       "    :END:\n\n"
-       "[[cite:&${=key=}]]\n"
-       )
-      bibtex-completion-additional-search-fields '(keywords)
-      bibtex-completion-display-formats
-      `((t . ,(concat
-               "${=has-pdf=:1}${=has-note=:1} "
-               "[${=key=}] "
-               "${author:15} "
-               "${title:*}"))))
-(require 'bibtex)
-(setq bibtex-autokey-year-length 4
-      bibtex-autokey-name-year-separator "-"
-      bibtex-autokey-year-title-separator "-"
-      bibtex-autokey-titleword-separator "-"
-      bibtex-autokey-titlewords 2
-      bibtex-autokey-titlewords-stretch 1
-      bibtex-autokey-titleword-length 5)
-(define-key bibtex-mode-map (kbd "C-c ]") 'org-ref-bibtex-hydra/body)
-(require 'org-ref)
-(require 'org-ref-helm)
-(define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link-hydra/body)
+;;;* Org-ref / Bibtex
+(use-package bibtex
+  :ensure nil
+  :config
+  (setq bibtex-autokey-year-length 4
+	bibtex-autokey-name-year-separator "-"
+	bibtex-autokey-year-title-separator "-"
+	bibtex-autokey-titleword-separator "-"
+	bibtex-autokey-titlewords 2
+	bibtex-autokey-titlewords-stretch 1
+	bibtex-autokey-titleword-length 5))
 
-;; org-latex
-(add-hook 'org-mode-hook 'org-fragtog-mode)
-(setq org-startup-with-latex-preview t)
-(setq org-startup-with-inline-images t)
-(setq org-startup-folded t)
-(setq org-preview-latex-default-process 'dvisvgm)
+(use-package org-ref
+  :after org
+  :config
+  (setq bibtex-completion-bibliography '("~/notes/ref.bib"
+					 "~/paper/01/fifth.bib"
+					 "~/paper/00/confining.bib")
+	bibtex-completion-library-path '("~/Research/")
+					;bibtex-completion-pdf-field "File"
+	bibtex-completion-find-additional-pdfs t
+	bibtex-completion-pdf-extension '(".pdf" ".djvu" ".ps")
+	bibtex-completion-pdf-open-function
+	(lambda (fpath)
+	  (call-process "zathura" nil 0 nil fpath))
+	bibtex-completion-pdf-symbol "⌘"
+	bibtex-completion-notes-symbol "✎"
+	bibtex-completion-notes-path "~/notes/reading.org"
+	bibtex-completion-notes-template-one-file
+	(concat
+	 "** ${title}\n"
+	 "    :PROPERTIES:\n"
+	 "      :Custom_ID: ${=key=}\n"
+	 "      :AUTHOR: ${author-or-editor}\n"
+	 "      :JOURNAL: ${journal}\n"
+	 "      :YEAR: ${year}\n"
+	 "      :DOI: ${doi}\n"
+	 "      :URL: ${url}\n"
+	 "    :END:\n\n"
+	 "[[cite:&${=key=}]]\n"
+	 )
+	bibtex-completion-additional-search-fields '(keywords)
+	bibtex-completion-display-formats
+	`((t . ,(concat
+		 "${=has-pdf=:1}${=has-note=:1} "
+		 "[${=key=}] "
+		 "${author:15} "
+		 "${title:*}"))))
+  (with-eval-after-load 'bibtex
+    (define-key bibtex-mode-map (kbd "C-c ]") #'org-ref-bibtex-hydra/body))
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "C-c ]") #'org-ref-insert-link-hydra/body)))
+
+;;;* Org LaTeX
+(use-package org-fragtog
+  :hook (org-mode . org-fragtog-mode))
+
 (defun my/text-scale-adjust-latex-previews ()
   "Adjust the size of latex preview fragments when changing the
 buffer's text scale."
   (pcase major-mode
     ('latex-mode
      (dolist (ov (overlays-in (point-min) (point-max)))
-       (if (eq (overlay-get ov 'category)
-               'preview-overlay)
-           (my/text-scale--resize-fragment ov))))
+       (when (eq (overlay-get ov 'category)
+		 'preview-overlay)
+         (my/text-scale--resize-fragment ov))))
     ('org-mode
      (dolist (ov (overlays-in (point-min) (point-max)))
-       (if (eq (overlay-get ov 'org-overlay-type)
-               'org-latex-overlay)
-           (my/text-scale--resize-fragment ov))))))
+       (when (eq (overlay-get ov 'org-overlay-type)
+		 'org-latex-overlay)
+         (my/text-scale--resize-fragment ov))))))
 (defun my/text-scale--resize-fragment (ov)
   (overlay-put
    ov 'display
@@ -194,25 +182,25 @@ buffer's text scale."
 (add-hook 'text-scale-mode-hook #'my/text-scale-adjust-latex-previews)
 
 ;; org-latex-export
-(setq org-latex-default-packages-alist nil)
-(setq org-latex-packages-alist nil)
-(setq org-latex-hyperref-template nil)
-(setq org-latex-compiler "xelatex")
+(with-eval-after-load 'ox-latex
+  (setq org-latex-default-packages-alist nil
+        org-latex-packages-alist nil
+        org-latex-hyperref-template nil
+        org-latex-compiler "xelatex"))
 
-;; og-babel
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((python . t)
-   (julia . t)
-   (calc . t)
-   (emacs-lisp . t)))
+;;;* Org Babel
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (julia . t)
+     (calc . t)
+     (emacs-lisp . t))))
 
-;; vterm
+;;;* Vterm
 (use-package vterm
-  :ensure t
   :commands vterm
   :config
-  ;; 用系统 shell
   (setq vterm-shell "/usr/bin/zsh")
 
   ;; 回滚历史行数
@@ -222,31 +210,20 @@ buffer's text scale."
   (setq vterm-keymap-exceptions
         '("C-c" "C-x" "C-u" "M-x" "M-o" "M-p" "M-n")))
 
-(defun my/vterm-here ()
-  "Open vterm in current buffer's directory."
-  (interactive)
-  (let ((default-directory (or (and (buffer-file-name)
-                                    (file-name-directory (buffer-file-name)))
-                               default-directory)))
-    (vterm (generate-new-buffer-name "*vterm*"))))
-
 (use-package vterm-toggle
-  :ensure t
-  :bind (("C-<return>" . vterm-toggle)))
+  :bind (("C-<return>" . vterm-toggle)
+         ("C-c t"      . vterm-toggle)))
 
-;; evil-mode
-;; 必须在加载 evil 之前设置
-(setq evil-want-integration t
-      evil-want-keybinding nil      ;; 让 evil-collection 接管各 mode 的键位
-      evil-want-C-u-scroll t)
-
+;;;* Evil mode
 (use-package evil
-  :ensure t
+  :init
+  (setq evil-want-integration t
+	evil-want-keybinding nil      ;; 让 evil-collection 接管各 mode 的键位
+	evil-want-C-u-scroll t)
   :config
   (evil-mode 1))
 
 (use-package evil-collection
-  :ensure t
   :after evil
   :config
   (evil-collection-init))
@@ -324,7 +301,7 @@ buffer's text scale."
                 (setq my/evil--change-triggered nil)
                 (evil-emacs-state))))
 
-  (defun shh/evil-q ()
+  (defun my/evil-q ()
     "Vim-like :q.
 If multiple windows: delete current window.
 If single window: kill current buffer (do NOT exit Emacs)."
@@ -332,24 +309,24 @@ If single window: kill current buffer (do NOT exit Emacs)."
     (if (one-window-p)
         (kill-current-buffer)
       (delete-window)))
-  (defun shh/evil-q-bang ()
+  (defun my/evil-q-bang ()
     "Vim-like :q! (force).
 Kill current buffer without saving; if multiple windows, still just close this view."
     (interactive)
     (let ((kill-buffer-query-functions nil)) ; avoid some prompts when killing buffer
       (set-buffer-modified-p nil)
-      (shh/evil-q)))
+      (my/evil-q)))
 
-  (defun shh/evil-wq ()
+  (defun my/evil-wq ()
     "Vim-like :wq."
     (interactive)
     (save-buffer)
-    (shh/evil-q))
+    (my/evil-q))
 
   ;; bind Ex commands
-  (evil-ex-define-cmd "q"  #'shh/evil-q)
-  (evil-ex-define-cmd "q!" #'shh/evil-q-bang)
-  (evil-ex-define-cmd "wq" #'shh/evil-wq)
+  (evil-ex-define-cmd "q"  #'my/evil-q)
+  (evil-ex-define-cmd "q!" #'my/evil-q-bang)
+  (evil-ex-define-cmd "wq" #'my/evil-wq)
 
   ;; only these exit Emacs
   (evil-ex-define-cmd "qa"  #'save-buffers-kill-terminal)
@@ -358,31 +335,31 @@ Kill current buffer without saving; if multiple windows, still just close this v
                               (save-some-buffers t)
                               (save-buffers-kill-terminal))))
 
+;;;* Dired
 (use-package dired
   :ensure nil
   :config
   ;; 总是递归删除 / 复制
-  (setq dired-recursive-deletes 'always)
-  (setq dired-recursive-copies 'always))
+  (setq dired-recursive-deletes 'always
+	dired-recursive-copies 'always)
 
-(with-eval-after-load 'dired
-  (evil-define-key 'normal dired-mode-map
-    (kbd "h")   #'dired-up-directory
-    (kbd "l")   #'dired-find-file))
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal dired-mode-map
+      (kbd "h")   #'dired-up-directory
+      (kbd "l")   #'dired-find-file))
 
-(defun shh-dired-open-image-feh ()
-  "Open the image at point using feh (external viewer)."
-  (interactive)
-  (let ((file (dired-get-file-for-visit)))
-    (start-process
-     "feh"
-     nil
-     "feh"
-     "--auto-zoom"
-     "--scale-down"
-     file)))
+  (defun shh-dired-open-image-feh ()
+    "Open the image at point using feh (external viewer)."
+    (interactive)
+    (let ((file (dired-get-file-for-visit)))
+      (start-process
+       "feh"
+       nil
+       "feh"
+       "--auto-zoom"
+       "--scale-down"
+       file)))
 
-(with-eval-after-load 'dired
   (defun shh-dired-find-file-advice (orig-fn &rest args)
     (let* ((file (dired-get-file-for-visit))
            (ext (downcase (or (file-name-extension file) ""))))
@@ -396,6 +373,13 @@ Kill current buffer without saving; if multiple windows, still just close this v
 
 ;; 代码折叠
 (add-hook 'prog-mode-hook #'hs-minor-mode)
+(defun my/outline-setup-elisp ()
+  "Outline folding for init.el style headings."
+  (setq-local outline-regexp ";;;\\*+ ")
+  (outline-minor-mode 1))
+
+(add-hook 'emacs-lisp-mode-hook #'my/outline-setup-elisp)
+(add-hook 'lisp-interaction-mode-hook #'my/outline-setup-elisp)
 
 ;;;; Open PDF-like files with zathura (from dired or find-file)
 (defgroup shh-external-doc nil
@@ -431,3 +415,109 @@ Kill current buffer without saving; if multiple windows, still just close this v
 (dolist (ext shh-external-doc-extensions)
   (add-to-list 'auto-mode-alist
                (cons (format "\\.%s\\'" (regexp-quote ext)) #'shh-external-doc-mode)))
+
+;; dired 复制文件到剪贴板
+(defun dired-copy-files-to-x-clipboard ()
+  "Copy marked files in dired to system clipboard as file URIs (X11)."
+  (interactive)
+  (let* ((files (dired-get-marked-files))
+         (uris (mapconcat
+                (lambda (f) (concat "file://" (expand-file-name f)))
+                files "\n")))
+    (with-temp-buffer
+      (insert uris)
+      (call-process-region
+       (point-min) (point-max)
+       "xclip" nil nil nil
+       "-selection" "clipboard"
+       "-t" "text/uri-list"))
+    (message "Copied %d file(s) to clipboard" (length files))))
+(with-eval-after-load 'dired
+  (define-key dired-mode-map (kbd "C-c C-c")
+    #'dired-copy-files-to-x-clipboard))
+
+(defun my/dired-home ()
+  "Switch to ~/ dired buffer, or open one if it doesn't exist."
+  (interactive)
+  (if-let ((buf (cl-find-if
+                 (lambda (b)
+                   (with-current-buffer b
+                     (and (eq major-mode 'dired-mode)
+                          (string-equal
+                           (expand-file-name default-directory)
+                           (expand-file-name "~")))))
+                 (buffer-list))))
+      (switch-to-buffer buf)
+    (dired "~")))
+
+(global-set-key (kbd "C-c f") #'my/dired-home)
+
+;;;* Ibuffer
+(use-package ibuffer
+  :ensure nil
+  :bind (("C-x C-b" . ibuffer))
+  :init
+  (setq ibuffer-saved-filter-groups
+	'(("main"
+	   ("Scratch" (name . "^\\*scratch\\*$"))
+           ("fm" (mode . dired-mode))
+           ("Programming" (derived-mode . prog-mode))
+	   ("Org"
+            (or
+             (derived-mode . org-mode)
+             (mode . org-agenda-mode)
+             (mode . org-capture-mode)
+             (name . "^\\*Org Src")
+             (name . "^\\*org-src")
+             (name . "^\\*Org Agenda\\*")))
+           ("Terminal" (mode . vterm-mode))
+           ("Emacs" (name . "^\\*")))))
+  :hook
+  (ibuffer-mode . (lambda ()
+                    (ibuffer-switch-to-saved-filter-groups "main")
+                    (ibuffer-update nil t))))
+
+;;;* Fcitx.el (for fcitx5)
+(use-package fcitx
+  :config
+  ;; Prefix-key
+  (fcitx-prefix-keys-add "C-x" "C-c")
+  (fcitx-prefix-keys-turn-on)
+
+  ;; Evil
+  (fcitx-evil-turn-on)
+
+  ;; Character & Key Input Support
+
+  ;; org-speed-command Support
+
+  ;; M-x, M-!, M-& and M-: Support
+  ;(fcitx-M-x-turn-on)
+  ;(fcitx-shell-command-turn-on)
+  ;(fcitx-eval-expression-turn-on)
+
+  ;; Disable Fcitx in MinibufferDisable Fcitx in Minibuffer
+  (fcitx-aggressive-minibuffer-turn-on)
+
+  ;; I-search Support
+  (fcitx-isearch-turn-on)
+
+  ;; Using D-Bus Interface
+  (setq fcitx-use-dbus 'fcitx5))
+
+;;;* Magit
+(use-package magit
+  :commands (magit-status magit-dispatch)
+  :bind (("C-x g" . magit-status)))
+
+;;;* Julia
+(use-package julia-mode
+  :mode "\\.jl\\'")
+
+;;;* Programming helpers
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+;;;* Cdlatex
+(use-package cdlatex
+  :commands (cdlatex-mode org-cdlatex-mode))

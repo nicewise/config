@@ -248,7 +248,7 @@ bar {
 set $mode_system  lock(L) logout(O) reboot(R) shutdown(S) exit(Esc)
 bindsym $mod+Shift+a mode "$mode_system"
 mode "$mode_system" {
-	bindsym l exec --no-startup-id i3lock -c '#000000', mode "default"
+	bindsym l exec --no-startup-id /usr/bin/bash "$HOME/config/conf.d/i3lock", mode "default"
 	bindsym o exec --no-startup-id i3-msg exit, mode "default"
 	bindsym r exec --no-startup-id systemctl reboot, mode "default"
 	bindsym s exec --no-startup-id systemctl poweroff, mode "default"
