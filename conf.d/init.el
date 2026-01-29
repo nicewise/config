@@ -3,7 +3,7 @@
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (global-display-line-numbers-mode t)
-(global-visual-line-mode t)
+;(global-visual-line-mode t)
 (global-auto-revert-mode t)
 (setq auto-revert-interval 5)
 (setq inhibit-splash-screen t)
@@ -521,3 +521,64 @@ Kill current buffer without saving; if multiple windows, still just close this v
 ;;;* Cdlatex
 (use-package cdlatex
   :commands (cdlatex-mode org-cdlatex-mode))
+
+;;;* Mode Line
+;; 定义 Evil state
+(defun shh/evil-state-label ()
+  (when (bound-and-true-p evil-local-mode)
+    (pcase evil-state
+      ((or 'insert 'emacs)
+       (propertize "--INSERT--"
+                   'face '(:weight bold :foreground "#dca3a3")))
+      ('visual
+       (propertize "--VISUAL--"
+                   'face '(:weight bold :foreground "#96cbfe")))
+      (_ ""))))
+
+;; 定义 buffer 名 + [+]
+(defun shh/modeline-buffer-name ()
+  (let ((name (buffer-name)))
+    (concat
+     "[" name "]"
+     (if (buffer-modified-p) "[+]" ""))))
+
+;; pwd
+(defun shh/modeline-pwd ()
+  "Return pretty pwd for mode-line.
+Show ~ instead of ~/; other dirs unchanged."
+  (let ((dir (abbreviate-file-name (expand-file-name default-directory))))
+    (if (string= dir "~/")
+        "~"
+      (directory-file-name dir))))
+
+;; 右侧
+(defun shh/modeline-right ()
+  (format "%d,%d  %s"
+          (line-number-at-pos)
+          (1+ (current-column))   ;; 列号从 1 开始
+          (format-mode-line "%p")))
+
+;; 组合
+(setq-default
+ mode-line-format
+ '("%e "
+   ;; 左侧：evil label（非 normal 才显示）
+   (:eval (let ((s (shh/evil-state-label)))
+            (if (string-empty-p (format "%s" s)) "" (concat s " "))))
+   ;; 左侧：[buffer] + [+]
+   (:eval (shh/modeline-buffer-name))
+   " | pwd: "
+   (:eval (shh/modeline-pwd))
+   " |"
+   " ["
+   mode-name
+   "]"
+
+   ;; 右侧：行,列 + 百分比（纯数字）
+   (:eval
+    (let ((pos (shh/modeline-right)))
+      (propertize " "
+		  'display
+		  `((space :align-to (- right ,(string-width pos)))))))
+   (:eval (shh/modeline-right))
+   ))
