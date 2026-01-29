@@ -41,8 +41,8 @@
   (load-theme 'doom-zenburn t)
 
   ;; （可选，但推荐）更好的 org / diff / treemacs 支持
-  (doom-themes-org-config)
-  (doom-themes-visual-bell-config))
+  (doom-themes-org-config))
+  ;(doom-themes-visual-bell-config))
 
 ;;;* Helm
 (use-package helm
