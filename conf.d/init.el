@@ -10,6 +10,17 @@
 (setq initial-major-mode 'org-mode)
 (setq initial-scratch-message nil)
 
+;;;* Windows move and resize
+(global-set-key (kbd "C-c w h") #'windmove-left)
+(global-set-key (kbd "C-c w l") #'windmove-right)
+(global-set-key (kbd "C-c w k") #'windmove-up)
+(global-set-key (kbd "C-c w j") #'windmove-down)
+
+(global-set-key (kbd "C-x w h") #'shrink-window-horizontally)
+(global-set-key (kbd "C-x w l") #'enlarge-window-horizontally)
+(global-set-key (kbd "C-x w j") #'shrink-window)
+(global-set-key (kbd "C-x w k") #'enlarge-window)
+
 ;;;* Packages
 ;(setq package-archives '(("gnu"   . "http://mirror.nju.edu.cn/elpa/gnu/")
 ;                         ("melpa" . "http://mirror.nju.edu.cn/elpa/melpa/")))
@@ -539,7 +550,9 @@ buffer's text scale."
 
 ;;;* Cdlatex
 (use-package cdlatex
-  :commands (cdlatex-mode org-cdlatex-mode))
+  :commands (cdlatex-mode org-cdlatex-mode)
+  :config
+  (setq cdlatex-insert-auto-labels-in-env-templates nil))
 
 ;;;* Mode Line
 ;; 定义 Evil state
@@ -601,3 +614,4 @@ Show ~ instead of ~/; other dirs unchanged."
 		  `((space :align-to (- right ,(string-width pos)))))))
    (:eval (shh/modeline-right))
    ))
+
