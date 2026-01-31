@@ -1,3 +1,8 @@
+(defvar my/org-dir
+  (expand-file-name "~/org-agenda/"))
+(defvar my/research-dir
+  (expand-file-name "~/Research/"))
+
 ;;;* Emacs
 (tool-bar-mode 0)
 (menu-bar-mode 0)
@@ -155,20 +160,36 @@
                 (evil-emacs-state))))
 
   (defun my/evil-q ()
-    "Vim-like :q.
-If multiple windows: delete current window.
-If single window: kill current buffer (do NOT exit Emacs)."
+    "Vim-like :q (but never exits Emacs).
+- If current buffer is shown in another window: delete current window.
+- Otherwise: kill current buffer (do NOT exit Emacs)."
     (interactive)
-    (if (one-window-p)
-        (kill-current-buffer)
-      (delete-window)))
+    (let* ((buf (current-buffer))
+           (wins (get-buffer-window-list buf nil t)))
+      (cond
+       ;; If there are unsaved changes, mimic Vim's refusal (optional behavior)
+       ((and (buffer-modified-p buf)
+             (buffer-file-name buf))
+	(user-error "Buffer modified; use :q! (or save first)"))
+
+       ;; Buffer is visible in more than one window -> just close this window
+       ((> (length wins) 1)
+	(delete-window))
+
+       ;; Only this window shows the buffer -> kill it (Emacs-friendly)
+       (t
+	(kill-current-buffer)))))
+
   (defun my/evil-q-bang ()
-    "Vim-like :q! (force).
-Kill current buffer without saving; if multiple windows, still just close this view."
+    "Vim-like :q! (but never exits Emacs)."
     (interactive)
-    (let ((kill-buffer-query-functions nil)) ; avoid some prompts when killing buffer
-      (set-buffer-modified-p nil)
-      (my/evil-q)))
+    (let* ((buf (current-buffer))
+           (wins (get-buffer-window-list buf nil t)))
+      (if (> (length wins) 1)
+          (delete-window)
+	(let ((kill-buffer-query-functions nil))
+          (set-buffer-modified-p nil)
+          (kill-current-buffer)))))
 
   (defun my/evil-wq ()
     "Vim-like :wq."
@@ -192,23 +213,25 @@ Kill current buffer without saving; if multiple windows, still just close this v
 (use-package org
   :ensure nil
   :init
-  (setq org-directory "~/notes"
-        org-default-notes-file "~/notes/quicknote.org"
-        org-agenda-files '("~/notes"))
+  (setq org-directory my/org-dir
+	org-agenda-files
+	(list (expand-file-name "todo.org" my/org-dir))
+	org-archive-location
+	(expand-file-name "archive.org::" my/org-dir))
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda)
          ("C-c c" . org-capture))
   :config
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCELLED(c)")))
+	'((sequence "TODO(t)" "|" "DONE(d)" "CANCELLED(c)")))
 
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/notes/quicknote.org" "Tasks")
-           "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+olp+datetree "~/notes/dairy.org")
-           "* %?\nEntered on %U\n  %i\n  %a")
-          ("n" "note" entry (file "~/notes/quicknote.org")
-           "* %? :NOTE:\n%U\n%a\n")))
+        '(("i" "Inbox" entry
+           (file (expand-file-name "inbox.org" my/org-dir))
+           "* %?\n  %U\n")
+	  ("t" "Todo" entry
+	   (file (expand-file-name "todo.org" my/org-dir))
+           "* TODO %?\n  %i\n  %a")))
 
   (setq org-file-apps
         '((auto-mode . emacs)
@@ -248,11 +271,11 @@ Kill current buffer without saving; if multiple windows, still just close this v
 (use-package org-ref
   :after org
   :config
-  (setq bibtex-completion-bibliography '("~/notes/ref.bib"
-					 "~/paper/01/fifth.bib"
-					 "~/paper/00/confining.bib")
-	bibtex-completion-library-path '("~/Research/")
-					;bibtex-completion-pdf-field "File"
+  (setq bibtex-completion-bibliography
+	(list (expand-file-name "ref.bib" my/research-dir))
+	bibtex-completion-library-path
+	(list my/research-dir)
+	;; bibtex-completion-pdf-field "File"
 	bibtex-completion-find-additional-pdfs t
 	bibtex-completion-pdf-extension '(".pdf" ".djvu" ".ps")
 	bibtex-completion-pdf-open-function
@@ -260,7 +283,8 @@ Kill current buffer without saving; if multiple windows, still just close this v
 	  (call-process "zathura" nil 0 nil fpath))
 	bibtex-completion-pdf-symbol "⌘"
 	bibtex-completion-notes-symbol "✎"
-	bibtex-completion-notes-path "~/notes/reading.org"
+	bibtex-completion-notes-path
+	(expand-file-name "reading.org" my/research-dir)
 	bibtex-completion-notes-template-one-file
 	(concat
 	 "** ${title}\n"
@@ -615,3 +639,4 @@ Show ~ instead of ~/; other dirs unchanged."
    (:eval (shh/modeline-right))
    ))
 
+;;;* 
