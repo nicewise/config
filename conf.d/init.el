@@ -593,10 +593,11 @@ buffer's text scale."
 
 ;; 定义 buffer 名 + [+]
 (defun shh/modeline-buffer-name ()
-  (let ((name (buffer-name)))
-    (concat
-     "[" name "]"
-     (if (buffer-modified-p) "[+]" ""))))
+  (let ((name (buffer-name))
+        (modified (and (buffer-file-name)
+                       (buffer-modified-p))))
+    (concat "[" name "]"
+            (if modified "[+]" ""))))
 
 ;; pwd
 (defun shh/modeline-pwd ()
