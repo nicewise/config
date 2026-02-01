@@ -3,17 +3,36 @@
 (defvar my/research-dir
   (expand-file-name "~/Research/"))
 
+;; ===== Copilot / GitHub / LSP 网络代理 =====
+;(setenv "HTTP_PROXY"  "http://127.0.0.1:7891")
+;(setenv "HTTPS_PROXY" "http://127.0.0.1:7891")
+;(setenv "NO_PROXY"    "localhost,127.0.0.1")
+
 ;;;* Emacs
 (tool-bar-mode 0)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (global-display-line-numbers-mode t)
-;(global-visual-line-mode t)
+(global-visual-line-mode t)
 (global-auto-revert-mode t)
 (setq auto-revert-interval 5)
 (setq inhibit-splash-screen t)
 (setq initial-major-mode 'org-mode)
 (setq initial-scratch-message nil)
+
+
+;;;* 代码折叠
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+(defun my/outline-setup-elisp ()
+  "Outline folding for init.el style headings."
+  (setq-local outline-regexp ";;;\\*+ ")
+  (outline-minor-mode 1)
+  ;; 如果是 init.el 文件则自动折叠
+  (when (string= (file-name-nondirectory (buffer-file-name)) "init.el")
+    (outline-hide-body)))
+
+(add-hook 'emacs-lisp-mode-hook #'my/outline-setup-elisp)
+(add-hook 'lisp-interaction-mode-hook #'my/outline-setup-elisp)
 
 ;;;* Windows move and resize
 (global-set-key (kbd "C-c w h") #'windmove-left)
@@ -76,8 +95,7 @@
 (use-package evil
   :init
   (setq evil-want-integration t
-	evil-want-keybinding nil      ;; 让 evil-collection 接管各 mode 的键位
-	evil-want-C-u-scroll t)
+	evil-want-keybinding nil) ;; 让 evil-collection 接管各 mode 的键位
   :config
   (evil-mode 1))
 
@@ -251,7 +269,7 @@
 	(plist-put org-format-latex-options
                    :background (face-background 'default))))
 
-;; 表格对齐
+;;;** 表格对齐
 (use-package valign
   :hook (org-mode . valign-mode))
 ; 上面这个好像说处理大型表格不太行，alternative: https://github.com/TobiasZawada/orgplus-align-tables
@@ -425,16 +443,6 @@ buffer's text scale."
   ;; 显式快捷键（可选）
   (define-key dired-mode-map (kbd "E") #'shh-dired-open-image-feh))
 
-;; 代码折叠
-(add-hook 'prog-mode-hook #'hs-minor-mode)
-(defun my/outline-setup-elisp ()
-  "Outline folding for init.el style headings."
-  (setq-local outline-regexp ";;;\\*+ ")
-  (outline-minor-mode 1))
-
-(add-hook 'emacs-lisp-mode-hook #'my/outline-setup-elisp)
-(add-hook 'lisp-interaction-mode-hook #'my/outline-setup-elisp)
-
 ;;;; Open PDF-like files with zathura (from dired or find-file)
 (defgroup shh-external-doc nil
   "Open some documents externally."
@@ -568,7 +576,7 @@ buffer's text scale."
 (use-package julia-mode
   :mode "\\.jl\\'")
 
-;;;* Programming helpers
+;;;* rainbow delimiters
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
@@ -594,10 +602,10 @@ buffer's text scale."
 ;; 定义 buffer 名 + [+]
 (defun shh/modeline-buffer-name ()
   (let ((name (buffer-name))
-        (modified (and (buffer-file-name)
-                       (buffer-modified-p))))
+	(modified-file (and (buffer-file-name)
+			    (buffer-modified-p))))
     (concat "[" name "]"
-            (if modified "[+]" ""))))
+            (if modified-file "[+]" ""))))
 
 ;; pwd
 (defun shh/modeline-pwd ()
@@ -607,6 +615,13 @@ Show ~ instead of ~/; other dirs unchanged."
     (if (string= dir "~/")
         "~"
       (directory-file-name dir))))
+
+;; mode name.  copilot-mode ? {mode-name} : [mode-name]
+(defun shh/modeline-mode-name ()
+  (let ((mn (format-mode-line mode-name)))
+    (if (bound-and-true-p copilot-mode)
+        (format "{%s}" mn)
+      (format "[%s]" mn))))
 
 ;; 右侧
 (defun shh/modeline-right ()
@@ -627,9 +642,8 @@ Show ~ instead of ~/; other dirs unchanged."
    " | pwd: "
    (:eval (shh/modeline-pwd))
    " |"
-   " ["
-   mode-name
-   "]"
+   ;; 中间：[mode-name]
+   (:eval (shh/modeline-mode-name))
 
    ;; 右侧：行,列 + 百分比（纯数字）
    (:eval
@@ -639,5 +653,46 @@ Show ~ instead of ~/; other dirs unchanged."
 		  `((space :align-to (- right ,(string-width pos)))))))
    (:eval (shh/modeline-right))
    ))
+
+;;;* copilot
+(use-package copilot
+  :hook ((prog-mode . copilot-mode))
+  :bind
+  (("C-<tab>" . copilot-complete))
+  (:map copilot-completion-map
+        ("C-<tab>" . copilot-accept-completion)
+        ("C-n" . copilot-next-completion)
+        ("C-p" . copilot-previous-completion))
+  :config
+  (setq copilot-network-proxy
+	'(:host "127.0.0.1" :port 7890))
+  (setq copilot-idle-delay nil)
+  (setq copilot-idle-delay 0.2)
+  (setq copilot-max-char -1))
+
+;;;* gptel
+(use-package gptel
+  :commands (gptel gptel-new-conversation gptel-menu)
+  :config
+  (setq deepseek
+	(gptel-make-deepseek "DeepSeek"
+	  :stream t
+	  :key "sk-e91fcfb2082d475e98bbf8b6a46c9ed3")
+	siliconflow
+        (gptel-make-openai "SiliconFlow-GLM-4.7"
+          :host "api.siliconflow.cn"
+          :endpoint "/v1/chat/completions"
+          :models '("Pro/zai-org/GLM-4.7")
+          :stream t
+          :key "sk-buecfddtshmbfoosyzpbrhrbutldbwqmvdvjllcjccniglzr")
+	gptel-default-mode 'org-mode)
+  (gptel-make-preset 'microplane-code-helper
+    :description nil :backend "DeepSeek" :model 'deepseek-reasoner
+    :system
+    "你是资深软件工程师与代码审查员。\n目标：给出可运行、可维护的代码和清晰解释。\n规则：\n1) 先用要点澄清需求/边界（若信息不足，列出最小必要假设）。\n2) 优先给出最终代码（含必要注释），再解释关键实现与复杂度。\n3) 涉及命令/配置时给出完整可复制片段。\n4) 默认遵循安全最佳实践与错误处理。\n"
+    :tools 'nil :stream t :temperature 1.0 :max-tokens nil :use-context
+    'system :track-media t :include-reasoning t)
+  (setq-default gptel-backend deepseek))
+(global-set-key (kbd "C-c g") #'gptel)
 
 ;;;* 
