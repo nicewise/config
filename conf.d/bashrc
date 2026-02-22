@@ -5,41 +5,20 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-alias ls='ls --color=auto'
-#PS1='[\u@\h \W]\$ '
-
 ###################################################################
 ######Above is generated automatically, below is added by sunhh.###
 
+# ---------- Prompt ----------
 #PS1='\[\e[0;31m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \[\e[0;31m\]\$ \[\e[m\]\[\e[0;32m\] '
 PS1='\[\e[0;42m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \[\e[0;32m\]\$ \[\e[m\]\[\e[0;32m\]'
 
-
+# ---------- 补全 ----------
 complete -cf sudo
 complete -cf man
 
-
-# install ntp
-# 然后 sudo ntpd -qg 就能用网络更新时间
-#unzip -O cp936
-alias l='ls -F'
-alias ll='ls -lhF'
-alias la='ls -a'
-alias lh='ls -alhF'
-alias grep='grep --color=auto'
-alias wifi='nmcli device wifi'
-alias shutdown='shutdown -h now'
-alias vim='emacs -nw'
-alias pacs='sudo pacman -S'
-alias Syu='sudo pacman -Syu'
-alias Syy='sudo pacman -Syy'
-alias Ss='pacman -Ss'
-alias Sr='sudo pacman -R'
-alias cpu="cat /proc/cpuinfo |grep MHz|uniq"
-alias jthreads="export JULIA_NUM_THREADS=6"
-alias julia="julia --threads 10"
-alias juliap="julia --project=."
-alias bdn="brightness s 20%-"
-alias bup="brightness s +20%"
-alias adog="git log --all --decorate --oneline --graph"
-alias conda='/opt/anaconda/bin/conda'
+# ---------- 共享 aliases ----------
+# 获取当前脚本所在目录
+if [[ -n "$BASH_SOURCE" ]]; then
+    _rc_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    [[ -f "$_rc_dir/shrc_common" ]] && source "$_rc_dir/shrc_common"
+fi

@@ -3,11 +3,6 @@
 (defvar my/research-dir
   (expand-file-name "~/Research/"))
 
-;; ===== Copilot / GitHub / LSP 网络代理 =====
-;(setenv "HTTP_PROXY"  "http://127.0.0.1:7891")
-;(setenv "HTTPS_PROXY" "http://127.0.0.1:7891")
-;(setenv "NO_PROXY"    "localhost,127.0.0.1")
-
 ;;;* Emacs
 (tool-bar-mode 0)
 (menu-bar-mode 0)
@@ -20,6 +15,16 @@
 (setq initial-major-mode 'org-mode)
 (setq initial-scratch-message nil)
 
+;;;* scratch
+;; ===== 快速切换到 scratch 缓冲区 =====
+(defun my/switch-to-scratch-buffer ()
+  "Switch to /scratch/ buffer, create it if doesn't exist."
+  (interactive)
+  (let ((scratch-buffer (get-buffer-create "*scratch*")))
+    (switch-to-buffer scratch-buffer)))
+
+;; 绑定快捷键 C-c s
+(global-set-key (kbd "C-c s") #'my/switch-to-scratch-buffer)
 
 ;;;* 代码折叠
 (add-hook 'prog-mode-hook #'hs-minor-mode)
@@ -236,6 +241,10 @@
 	(list (expand-file-name "todo.org" my/org-dir))
 	org-archive-location
 	(expand-file-name "archive.org::" my/org-dir))
+  (defvar my/inbox-file
+    (expand-file-name "inbox.org" my/org-dir))
+  (defvar my/todo-file
+    (expand-file-name "todo.org" my/org-dir))
   :bind (("C-c l" . org-store-link)
          ("C-c a" . org-agenda)
          ("C-c c" . org-capture))
@@ -245,23 +254,23 @@
 
   (setq org-capture-templates
         '(("i" "Inbox" entry
-           (file (expand-file-name "inbox.org" my/org-dir))
+           (file my/inbox-file)
            "* %?\n  %U\n")
 	  ("t" "Todo" entry
-	   (file (expand-file-name "todo.org" my/org-dir))
+	   (file my/todo-file)
            "* TODO %?\n  %i\n  %a")))
 
   (setq org-file-apps
         '((auto-mode . emacs)
           ("\\.pdf\\'" . "zathura %s")))
 
-  (setq org-startup-with-latex-preview t
-	org-startup-with-inline-images t
+  (setq org-startup-with-latex-preview nil
+	org-startup-with-inline-images nil
 	org-startup-folded t
 	org-preview-latex-default-process 'dvisvgm)
 
   (setq org-format-latex-options
-	(plist-put org-format-latex-options :scale 1.6))
+	(plist-put org-format-latex-options :scale 1.2))
   (setq org-format-latex-options
 	(plist-put org-format-latex-options
                    :foreground (face-foreground 'default)))
@@ -347,9 +356,10 @@
         (_ nil))))
 
   ;; 在 evil 状态变化后执行
-  (add-hook 'evil-normal-state-entry-hook #'shh/org-fragtog-evil-control)
-  (add-hook 'evil-insert-state-entry-hook #'shh/org-fragtog-evil-control)
-  (add-hook 'evil-emacs-state-entry-hook  #'shh/org-fragtog-evil-control))
+  (add-hook 'evil-normal-state-entry-hook #'shh/org-fragtog-evil-control))
+;; 下面这两个有需要再自己用吧
+;;  (add-hook 'evil-insert-state-entry-hook #'shh/org-fragtog-evil-control)
+;;  (add-hook 'evil-emacs-state-entry-hook  #'shh/org-fragtog-evil-control)
 
 (defun my/text-scale-adjust-latex-previews ()
   "Adjust the size of latex preview fragments when changing the
@@ -372,7 +382,16 @@ buffer's text scale."
          (plist-put
           (cdr (overlay-get ov 'display))
           :scale (+ 1.0 (* 0.25 text-scale-mode-amount))))))
-(add-hook 'text-scale-mode-hook #'my/text-scale-adjust-latex-previews)
+;; 添加防抖（debounce）
+(defvar my/text-scale-timer nil)
+(defun my/text-scale-adjust-latex-previews-debounced ()
+  (when my/text-scale-timer
+    (cancel-timer my/text-scale-timer))
+  (setq my/text-scale-timer
+        (run-with-idle-timer 0.3 nil
+                             #'my/text-scale-adjust-latex-previews)))
+
+(add-hook 'text-scale-mode-hook #'my/text-scale-adjust-latex-previews-debounced)
 
 ;; org-latex-export
 (with-eval-after-load 'ox-latex
@@ -540,32 +559,16 @@ buffer's text scale."
                     (ibuffer-update nil t))))
 
 ;;;* Fcitx.el (for fcitx5)
-(use-package fcitx
-  :config
-  ;; Prefix-key
-  (fcitx-prefix-keys-add "C-x" "C-c")
-  (fcitx-prefix-keys-turn-on)
-
-  ;; Evil
-  (fcitx-evil-turn-on)
-
-  ;; Character & Key Input Support
-
-  ;; org-speed-command Support
-
-  ;; M-x, M-!, M-& and M-: Support
-  ;(fcitx-M-x-turn-on)
-  ;(fcitx-shell-command-turn-on)
-  ;(fcitx-eval-expression-turn-on)
-
-  ;; Disable Fcitx in MinibufferDisable Fcitx in Minibuffer
-  (fcitx-aggressive-minibuffer-turn-on)
-
-  ;; I-search Support
-  (fcitx-isearch-turn-on)
-
-  ;; Using D-Bus Interface
-  (setq fcitx-use-dbus 'fcitx5))
+;; 只在系统安装了 fcitx5 时加载
+(when (executable-find "fcitx5")
+  (use-package fcitx
+    :config
+    (fcitx-prefix-keys-add "C-x" "C-c")
+    (fcitx-prefix-keys-turn-on)
+    (fcitx-evil-turn-on)
+    (fcitx-aggressive-minibuffer-turn-on)
+    (fcitx-isearch-turn-on)
+    (setq fcitx-use-dbus 'fcitx5)))
 
 ;;;* Magit
 (use-package magit
@@ -616,12 +619,9 @@ Show ~ instead of ~/; other dirs unchanged."
         "~"
       (directory-file-name dir))))
 
-;; mode name.  copilot-mode ? {mode-name} : [mode-name]
+;; mode name
 (defun shh/modeline-mode-name ()
-  (let ((mn (format-mode-line mode-name)))
-    (if (bound-and-true-p copilot-mode)
-        (format "{%s}" mn)
-      (format "[%s]" mn))))
+  (format "[%s]" (format-mode-line mode-name)))
 
 ;; 右侧
 (defun shh/modeline-right ()
@@ -654,45 +654,3 @@ Show ~ instead of ~/; other dirs unchanged."
    (:eval (shh/modeline-right))
    ))
 
-;;;* copilot
-(use-package copilot
-  :hook ((prog-mode . copilot-mode))
-  :bind
-  (("C-<tab>" . copilot-complete))
-  (:map copilot-completion-map
-        ("C-<tab>" . copilot-accept-completion)
-        ("C-n" . copilot-next-completion)
-        ("C-p" . copilot-previous-completion))
-  :config
-  (setq copilot-network-proxy
-	'(:host "127.0.0.1" :port 7890))
-  (setq copilot-idle-delay nil)
-  (setq copilot-idle-delay 0.2)
-  (setq copilot-max-char -1))
-
-;;;* gptel
-(use-package gptel
-  :commands (gptel gptel-new-conversation gptel-menu)
-  :config
-  (setq deepseek
-	(gptel-make-deepseek "DeepSeek"
-	  :stream t
-	  :key "sk-e91fcfb2082d475e98bbf8b6a46c9ed3")
-	siliconflow
-        (gptel-make-openai "SiliconFlow-GLM-4.7"
-          :host "api.siliconflow.cn"
-          :endpoint "/v1/chat/completions"
-          :models '("Pro/zai-org/GLM-4.7")
-          :stream t
-          :key "sk-buecfddtshmbfoosyzpbrhrbutldbwqmvdvjllcjccniglzr")
-	gptel-default-mode 'org-mode)
-  (gptel-make-preset 'microplane-code-helper
-    :description nil :backend "DeepSeek" :model 'deepseek-reasoner
-    :system
-    "你是资深软件工程师与代码审查员。\n目标：给出可运行、可维护的代码和清晰解释。\n规则：\n1) 先用要点澄清需求/边界（若信息不足，列出最小必要假设）。\n2) 优先给出最终代码（含必要注释），再解释关键实现与复杂度。\n3) 涉及命令/配置时给出完整可复制片段。\n4) 默认遵循安全最佳实践与错误处理。\n"
-    :tools 'nil :stream t :temperature 1.0 :max-tokens nil :use-context
-    'system :track-media t :include-reasoning t)
-  (setq-default gptel-backend deepseek))
-(global-set-key (kbd "C-c g") #'gptel)
-
-;;;* 

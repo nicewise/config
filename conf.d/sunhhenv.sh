@@ -1,6 +1,40 @@
-export PATH="$PATH:/home/sunhh/bin:/home/sunhh/Peridigm/hdf5-1.14.4.3/bin:/home/sunhh/Peridigm/netcdf-4.9.2/bin:/home/sunhh/Peridigm/trilinos-16.0/bin"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/sunhh/Peridigm/hdf5-1.14.4.3/lib:/home/sunhh/Peridigm/netcdf-4.9.2/lib:/home/sunhh/Peridigm/trilinos-16.0/lib:/home/sunhh/clike/lib"
-export C_INCLUDE_PATH=/home/sunhh/clike/include:$C_INCLUDE_PATH
-#export JULIA_LOAD_PATH="$JULIA_LOAD_PATH:/home/sunhh/PD/:/home/sunhh/FEM/"
-export JULIA_PKG_SERVER=https://mirror.nju.edu.cn/julia
-#export JULIA_PKG_SERVER=https://mirrors.tuna.tsinghua.edu.cn/julia
+# -----------------------------------------------------------------------------
+# Research toolchain environment (sunhh)
+# Location: /etc/profile.d/sunhhenv.sh
+# -----------------------------------------------------------------------------
+
+# ---- Base dirs --------------------------------------------------------------
+HOME_SUNHH="/home/sunhh"
+PERIDIGM_DIR="$HOME_SUNHH/Peridigm"
+CLIKE_DIR="$HOME_SUNHH/clike"
+TFEL_DIR="$HOME_SUNHH/opt/tfel"
+
+# ---- Helper: add to PATH if not exists --------------------------------------
+_path_append() {
+    case ":$PATH:" in
+        *":$1:"*) ;;  # already exists
+        *) export PATH="$PATH:$1" ;;
+    esac
+}
+
+_ldpath_append() {
+    case ":$LD_LIBRARY_PATH:" in
+        *":$1:"*) ;;
+        *) export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$1" ;;
+    esac
+}
+
+# ---- PATH: executables ------------------------------------------------------
+_path_append "$HOME_SUNHH/.npm-global/bin"
+_path_append "$HOME_SUNHH/bin"
+_path_append "$TFEL_DIR/bin"
+
+# ---- LD_LIBRARY_PATH: shared libraries --------------------------------------
+_ldpath_append "$CLIKE_DIR/lib"
+_ldpath_append "$TFEL_DIR/lib"
+
+# ---- C/C++ include search path ---------------------------------------------
+export C_INCLUDE_PATH="$CLIKE_DIR/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+
+# ---- Julia settings ---------------------------------------------------------
+export JULIA_PKG_SERVER="https://mirror.nju.edu.cn/julia"

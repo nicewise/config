@@ -1,0 +1,43 @@
+# =================================================
+# 共享 aliases (同时被 bashrc 和 zshrc source)
+# =================================================
+
+# ls 系列
+alias ls='ls --color=auto'
+alias l='ls -F'
+alias ll='ls -lhF'
+alias la='ls -a'
+alias lh='ls -alhF'
+
+# grep
+alias grep='grep --color=auto'
+
+# 系统
+alias wifi='nmcli device wifi'
+alias shutdown='shutdown -h now'
+alias cpu="cat /proc/cpuinfo | grep MHz | uniq"
+
+# 编辑器
+alias vim='emacs -nw'
+
+# paru (AUR helper)
+alias pacs='paru -S'
+alias Syu='paru -Syu'
+alias Syy='paru -Syy'
+alias Ss='paru -Ss'
+alias Sr='paru -R'
+
+# Julia
+alias jthreads="export JULIA_NUM_THREADS=6"
+alias julia="julia --threads 10"
+alias juliap="julia --project=."
+
+# Brightness
+alias bdn="brightness s 20%-"
+alias bup="brightness s +20%"
+
+# Git
+alias adog="git log --all --decorate --oneline --graph"
+
+# Conda
+alias conda='/opt/anaconda/bin/conda'

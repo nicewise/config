@@ -17,6 +17,7 @@ font pango:monospace 12
 
 ##########Added by Sunhh###########
 exec_always --no-startup-id feh --bg-scale "$HOME/config/conf.d/background"
+exec --no-startup-id dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -94,9 +95,6 @@ bindsym $mod+space focus mode_toggle
 # focus the parent container
 bindsym $mod+a focus parent
 
-# focus the child container
-#bindsym $mod+d focus child
-
 #隐藏窗口
 bindsym $mod+Shift+minus move scratchpad
 
@@ -110,21 +108,8 @@ bindsym $mod+t exec --no-startup-id $filemanager
 
 bindsym --release Print exec --no-startup-id print.sh -s
 
-# Define names for default workspaces for which we configure key bindings later on.
-# We use variables to avoid repeating the names in multiple places.
-#set $ws1 "1"
-#set $ws2 "2"
-#set $ws3 "3"
-#set $ws4 "4"
-#set $ws5 "5"
-#set $ws6 "6"
-#set $ws7 "7"
-#set $ws8 "8"
-#set $ws9 "9"
-#set $ws10 "10"
-# 
+# Workspace names
 set $ws1  1:  
-#set $ws2  2:  
 set $ws2  2:  
 set $ws3  3:  
 set $ws4  4:  
@@ -133,7 +118,6 @@ set $ws6  6: 
 set $ws7  7:  
 set $ws8  8:  
 set $ws9  9:  
-#set $ws10 10:  
 set $ws10 10:  
 
 assign [class="Pcmanfm"] $ws1
@@ -198,7 +182,7 @@ bindsym $mod+r mode "resize"
 
 for_window [class="firefox"] border none
 for_window [class="Pcmanfm"] border none
-for_window [class="Pcmanfm"] border none
+
 for_window [class="Zathura"] border none
 for_window [class="Gvim"] border none
 for_window [class="Emacs"] border none
@@ -206,6 +190,7 @@ for_window [class="XTerm"] border none
 for_window [class="URxvt"] border none
 for_window [class="WizNote"] border none
 for_window [class="ParaView"] border none
+for_window [class="qutebrowser"] border none
 
 
 client.focused          #333333 #333333 #FFFFFF #333333
@@ -223,10 +208,10 @@ bar {
         #height 28
         #tray_output primary
         mode dock
-        status_command $HOME/config/conf.d/conky-i3bar
+        status_command $HOME/config/conf.d/conky-i3bar.sh
         position top
         strip_workspace_numbers yes
-        #separator_symbol "    "
+
         separator_symbol "|"
 
         colors {
