@@ -174,45 +174,40 @@
                 (setq my/evil--change-triggered nil)
                 (evil-emacs-state))))
 
-  (defun my/evil-q ()
-    "Vim-like :q (but never exits Emacs).
- - If current buffer is shown in another window: delete current window.
- - Otherwise: kill current buffer (do NOT exit Emacs)."
-    (interactive)
+  (evil-define-command my/evil-q ()
+    "Vim-like :q and :q! (but never exits Emacs).
+With bang (!), force kill without saving.
+Without bang, refuse if buffer has unsaved changes."
+    :ex-bang t
     (let* ((buf (current-buffer))
            (wins (get-buffer-window-list buf nil t)))
       (cond
-       ;; If there are unsaved changes, mimic Vim's refusal (optional behavior)
-       ((and (buffer-modified-p buf)
-             (buffer-file-name buf))
+       ;; Bang: force kill
+       (evil-ex-bang
+        (if (> (length wins) 1)
+            (delete-window)
+          (let ((kill-buffer-query-functions nil))
+            (set-buffer-modified-p nil)
+            (kill-current-buffer))))
+       ;; No bang but modified: error
+       ((and (buffer-modified-p buf) (buffer-file-name buf))
         (user-error "Buffer modified; use :q! (or save first)"))
-       ;; Buffer is visible in more than one window -> just close this window
+       ;; No bang, not modified: normal close
        ((> (length wins) 1)
         (delete-window))
-       ;; Only this window shows the buffer -> kill it (Emacs-friendly)
        (t
         (kill-current-buffer)))))
 
-  (defun my/evil-q-bang ()
-    "Vim-like :q! (but never exits Emacs)."
-    (interactive)
-    (let* ((buf (current-buffer))
-           (wins (get-buffer-window-list buf nil t)))
-      (if (> (length wins) 1)
-          (delete-window)
-        (let ((kill-buffer-query-functions nil))
-          (set-buffer-modified-p nil)
-          (kill-current-buffer)))))
   (defun my/evil-wq ()
     "Vim-like :wq."
     (interactive)
     (save-buffer)
     (my/evil-q))
+
   ;; bind Ex commands
-  (evil-ex-define-cmd "q!" #'my/evil-q-bang)
-  (evil-ex-define-cmd "q"  #'my/evil-q)
+  (evil-ex-define-cmd "q" #'my/evil-q)
   (evil-ex-define-cmd "wq" #'my/evil-wq)
-  (evil-ex-define-cmd "qa"  #'save-buffers-kill-terminal)
+  (evil-ex-define-cmd "qa" #'save-buffers-kill-terminal)
   (evil-ex-define-cmd "qall" #'save-buffers-kill-terminal)
   (evil-ex-define-cmd "wqa" (lambda () (interactive)
                               (save-some-buffers t)
