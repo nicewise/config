@@ -1,5 +1,10 @@
 # ~/.zshrc
 # =================================================
+
+# ---------- 共享 aliases（所有 shell 都加载）----------
+[[ -f "$HOME/config/conf.d/shrc_common" ]] && source "$HOME/config/conf.d/shrc_common"
+
+# 以下只在交互式 shell 加载
 [[ -o interactive ]] || return
 
 # ---------- 基本选项 ----------
@@ -19,7 +24,4 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 # 绿色用户名 + 蓝色路径 + $
 PROMPT='%K{green}%n%k %F{39}%~%f %F{70}$%f '
 
-# ---------- 共享 aliases ----------
-# 获取当前脚本所在目录
-_rc_dir="${0:A:h}"
-[[ -f "$_rc_dir/shrc_common" ]] && source "$_rc_dir/shrc_common"
+

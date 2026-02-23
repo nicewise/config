@@ -26,19 +26,6 @@
 ;; 绑定快捷键 C-c s
 (global-set-key (kbd "C-c s") #'my/switch-to-scratch-buffer)
 
-;;;* 代码折叠
-(add-hook 'prog-mode-hook #'hs-minor-mode)
-(defun my/outline-setup-elisp ()
-  "Outline folding for init.el style headings."
-  (setq-local outline-regexp ";;;\\*+ ")
-  (outline-minor-mode 1)
-  ;; 如果是 init.el 文件则自动折叠
-  (when (string= (file-name-nondirectory (buffer-file-name)) "init.el")
-    (outline-hide-body)))
-
-(add-hook 'emacs-lisp-mode-hook #'my/outline-setup-elisp)
-(add-hook 'lisp-interaction-mode-hook #'my/outline-setup-elisp)
-
 ;;;* Windows move and resize
 (global-set-key (kbd "C-c w h") #'windmove-left)
 (global-set-key (kbd "C-c w l") #'windmove-right)
@@ -51,11 +38,16 @@
 (global-set-key (kbd "C-x w k") #'enlarge-window)
 
 ;;;* Packages
-;(setq package-archives '(("gnu"   . "http://mirror.nju.edu.cn/elpa/gnu/")
-;                         ("melpa" . "http://mirror.nju.edu.cn/elpa/melpa/")))
+;(setq package-archives
+;      '(("gnu"   . "https://elpa.gnu.org/packages/")
+;        ("melpa" . "https://melpa.org/packages/")))
 (setq package-archives
-      '(("gnu"   . "https://elpa.gnu.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")))
+      '(("gnu"    . "https://mirror.nju.edu.cn/elpa/gnu/")
+        ("nongnu" . "https://mirror.nju.edu.cn/elpa/nongnu/")
+        ("melpa"  . "https://mirror.nju.edu.cn/elpa/melpa/")))
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
 (setq use-package-always-ensure t)
 
 ;;;* Fonts
@@ -168,7 +160,7 @@
     (kbd "I") (lambda () (interactive) (beginning-of-line) (evil-emacs-state))
     (kbd "A") (lambda () (interactive) (end-of-line) (evil-emacs-state)))
 
-;; 关键：只让由 change 触发的 insert，切到 emacs-state
+  ;; 关键：只让由 change 触发的 insert，切到 emacs-state
   (defvar my/evil--change-triggered nil)
 
   (advice-add 'evil-change :around
@@ -184,8 +176,8 @@
 
   (defun my/evil-q ()
     "Vim-like :q (but never exits Emacs).
-- If current buffer is shown in another window: delete current window.
-- Otherwise: kill current buffer (do NOT exit Emacs)."
+ - If current buffer is shown in another window: delete current window.
+ - Otherwise: kill current buffer (do NOT exit Emacs)."
     (interactive)
     (let* ((buf (current-buffer))
            (wins (get-buffer-window-list buf nil t)))
@@ -193,15 +185,13 @@
        ;; If there are unsaved changes, mimic Vim's refusal (optional behavior)
        ((and (buffer-modified-p buf)
              (buffer-file-name buf))
-	(user-error "Buffer modified; use :q! (or save first)"))
-
+        (user-error "Buffer modified; use :q! (or save first)"))
        ;; Buffer is visible in more than one window -> just close this window
        ((> (length wins) 1)
-	(delete-window))
-
+        (delete-window))
        ;; Only this window shows the buffer -> kill it (Emacs-friendly)
        (t
-	(kill-current-buffer)))))
+        (kill-current-buffer)))))
 
   (defun my/evil-q-bang ()
     "Vim-like :q! (but never exits Emacs)."
@@ -210,22 +200,18 @@
            (wins (get-buffer-window-list buf nil t)))
       (if (> (length wins) 1)
           (delete-window)
-	(let ((kill-buffer-query-functions nil))
+        (let ((kill-buffer-query-functions nil))
           (set-buffer-modified-p nil)
           (kill-current-buffer)))))
-
   (defun my/evil-wq ()
     "Vim-like :wq."
     (interactive)
     (save-buffer)
     (my/evil-q))
-
   ;; bind Ex commands
-  (evil-ex-define-cmd "q"  #'my/evil-q)
   (evil-ex-define-cmd "q!" #'my/evil-q-bang)
+  (evil-ex-define-cmd "q"  #'my/evil-q)
   (evil-ex-define-cmd "wq" #'my/evil-wq)
-
-  ;; only these exit Emacs
   (evil-ex-define-cmd "qa"  #'save-buffers-kill-terminal)
   (evil-ex-define-cmd "qall" #'save-buffers-kill-terminal)
   (evil-ex-define-cmd "wqa" (lambda () (interactive)
@@ -409,6 +395,12 @@ buffer's text scale."
      (calc . t)
      (emacs-lisp . t))))
 
+;;;* Agent-shell (AI coding agents)
+(use-package agent-shell
+  :config
+  (setq agent-shell-preferred-agent-config
+	(agent-shell-opencode-make-agent-config)))
+
 ;;;* Vterm
 (use-package vterm
   :commands vterm
@@ -434,10 +426,25 @@ buffer's text scale."
   (setq dired-recursive-deletes 'always
 	dired-recursive-copies 'always)
 
+  ;; ===== 颜色增强 =====
+  (set-face-attribute 'dired-directory nil
+                      :foreground "#8cd0d3"      ; 亮青色目录
+                      :weight 'bold)
+  (set-face-attribute 'dired-symlink nil
+                      :foreground "#f0dfaf"      ; 金色链接
+                      :slant 'italic)
+  (set-face-attribute 'dired-marked nil
+                      :foreground "#cc9393"      ; 红色标记
+                      :weight 'bold)
+  (set-face-attribute 'dired-flagged nil
+                      :foreground "#bc6c5c"      ; 深红待删除
+                      :weight 'bold)
+
   (with-eval-after-load 'evil
     (evil-define-key 'normal dired-mode-map
       (kbd "h")   #'dired-up-directory
-      (kbd "l")   #'dired-find-file))
+      (kbd "l")   #'dired-find-file
+      (kbd "/")   #'dired-narrow))
 
   (defun shh-dired-open-image-feh ()
     "Open the image at point using feh (external viewer)."
@@ -532,6 +539,55 @@ buffer's text scale."
     (dired "~")))
 
 (global-set-key (kbd "C-c f") #'my/dired-home)
+
+;;;** Dired-subtree (tree 式展开)
+(use-package dired-subtree
+  :after dired
+  :config
+  (setq dired-subtree-use-backgrounds nil)
+  ;; tree 风格缩进
+  (setq dired-subtree-line-prefix "│ ")
+  (add-hook 'dired-subtree-after-insert-hook
+            (lambda ()
+              (when (fboundp 'hl-line-highlight)
+                (hl-line-highlight))))
+  :bind (:map dired-mode-map
+              ("<tab>" . dired-subtree-toggle)
+              ("<backtab>" . dired-subtree-cycle)))
+
+;;;** Dired-narrow (实时过滤)
+(use-package dired-narrow
+  :load-path "~/dired-hacks"
+  :bind (:map dired-mode-map
+              ("/" . dired-narrow))
+  :config
+  ;; vim-like 导航，同时保留方向键
+  (define-key dired-narrow-map (kbd "C-j") #'dired-narrow-next-file)
+  (define-key dired-narrow-map (kbd "C-k") #'dired-narrow-previous-file)
+  (define-key dired-narrow-map (kbd "C-l") #'dired-narrow-enter-directory))
+;;;** Dired-rainbow (文件类型着色)
+(use-package dired-rainbow
+  :config
+  (dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
+  (dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
+  (dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
+  (dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
+  (dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
+  (dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
+  (dired-rainbow-define media "#de751f" ("mp3" "mp4" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
+  (dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
+  (dired-rainbow-define log "#c17d11" ("log"))
+  (dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
+  (dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
+  (dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
+  (dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
+  (dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
+  (dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
+  (dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
+  (dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
+  (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
+  (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
+  (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
 
 ;;;* Ibuffer
 (use-package ibuffer
@@ -653,4 +709,14 @@ Show ~ instead of ~/; other dirs unchanged."
 		  `((space :align-to (- right ,(string-width pos)))))))
    (:eval (shh/modeline-right))
    ))
-
+;;;* 代码折叠
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+(defun my/outline-setup-init-el ()
+  "Outline folding for init.el only."
+  (when (and (derived-mode-p 'emacs-lisp-mode)
+             (buffer-file-name)
+             (string= (file-name-nondirectory (buffer-file-name)) "init.el"))
+    (setq-local outline-regexp ";;;\\*+ ")
+    (outline-minor-mode 1)
+    (outline-hide-body)))
+(add-hook 'find-file-hook #'my/outline-setup-init-el)

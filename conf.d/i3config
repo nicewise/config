@@ -35,7 +35,7 @@ bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl s +20%
 floating_modifier $mod
 
 # start a terminal
-set $termi urxvt
+set $termi alacritty
 bindsym $mod+Return exec --no-startup-id $termi
 
 # kill focused window
@@ -188,6 +188,7 @@ for_window [class="Gvim"] border none
 for_window [class="Emacs"] border none
 for_window [class="XTerm"] border none
 for_window [class="URxvt"] border none
+for_window [class="Alacritty"] border none
 for_window [class="WizNote"] border none
 for_window [class="ParaView"] border none
 for_window [class="qutebrowser"] border none

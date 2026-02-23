@@ -48,6 +48,6 @@ URxvt.cursorBlink: True
 URxvt.saveLines: 3000
 URxvt.borderLess: False
 
-! 字体
-URxvt.font: xft:Source Code Pro:antialias=True:pixelsize=18,xft:WenQuanYi Zen Hei:pixelsize=18
-URxvt.boldfont: xft:Source Code Pro:antialias=True:pixelsize=18,xft:WenQuanYi Zen Hei:pixelsize=18
+! 字体 (英文 → 中文 → Emoji)
+URxvt.font: xft:Source Code Pro:antialias=True:pixelsize=18,xft:WenQuanYi Zen Hei:pixelsize=18,xft:Noto Color Emoji:pixelsize=18
+URxvt.boldfont: xft:Source Code Pro:antialias=True:pixelsize=18,xft:WenQuanYi Zen Hei:pixelsize=18,xft:Noto Color Emoji:pixelsize=18

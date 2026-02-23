@@ -17,6 +17,9 @@ ln -sf "$gitdir/conf.d/i3config" .config/i3/config
 # emacs
 mkdir -p .emacs.d
 ln -sf "$gitdir/conf.d/init.el" .emacs.d/init.el
+# alacritty
+mkdir -p .config/alacritty
+ln -sf "$gitdir/conf.d/alacritty.toml" .config/alacritty/alacritty.toml
 
 # paru
 mkdir -p .config/paru
