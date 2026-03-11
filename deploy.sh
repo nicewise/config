@@ -29,3 +29,18 @@ ln -sf "$gitdir/conf.d/paru.conf" .config/paru/paru.conf
 sudo ln -sf "$gitdir/conf.d/sunhhenv.sh" /etc/profile.d/
 sudo ln -sf "$gitdir/conf.d/30-touchpad.conf" /etc/X11/xorg.conf.d/30-touchpad.conf
 sudo ln -sf "$gitdir/conf.d/10-monitor.conf" /etc/X11/xorg.conf.d/10-monitor.conf
+
+# sway
+mkdir -p .config/sway
+ln -sf "$gitdir/conf.d/swayconfig" .config/sway/config
+mkdir -p .config/swaylock
+ln -sf "$gitdir/conf.d/swaylockconfig" .config/swaylock/config
+ln -sf "$gitdir/conf.d/swayshot.sh" "$HOME/.local/bin/swayshot.sh"
+
+# waybar
+mkdir -p .config/waybar
+ln -sf "$gitdir/conf.d/waybar/config" .config/waybar/config
+ln -sf "$gitdir/conf.d/waybar/style.css" .config/waybar/style.css
+
+# sway env
+ln -sf "$gitdir/conf.d/swayenv" .config/sway/env
