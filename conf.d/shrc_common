@@ -17,9 +17,6 @@ alias wifi='nmcli device wifi'
 alias shutdown='shutdown -h now'
 alias cpu="cat /proc/cpuinfo | grep MHz | uniq"
 
-# 编辑器
-alias vim='emacs -nw'
-
 # paru (AUR helper)
 alias pacs='paru -S'
 alias Syu='paru -Syu'
@@ -32,12 +29,9 @@ alias jthreads="export JULIA_NUM_THREADS=6"
 alias julia="julia --threads 10"
 alias juliap="julia --project=."
 
-# Brightness
-alias bdn="brightness s 20%-"
-alias bup="brightness s +20%"
-
 # Git
 alias adog="git log --all --decorate --oneline --graph"
 
-# Conda
-alias conda='/opt/anaconda/bin/conda'
+# brightness.sh
+alias bu="brightness.sh 1"
+alias bd="brightness.sh 0"

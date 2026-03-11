@@ -552,7 +552,7 @@ buffer's text scale."
 
 ;;;** Dired-narrow (实时过滤)
 (use-package dired-narrow
-  :load-path "~/dired-hacks"
+  :load-path "~/open-source/dired-hacks"
   :bind (:map dired-mode-map
               ("/" . dired-narrow))
   :config
@@ -612,15 +612,16 @@ buffer's text scale."
 ;;;* Fcitx.el (for fcitx5)
 ;; 只在系统安装了 fcitx5 时加载
 (when (executable-find "fcitx5")
+  (add-to-list 'load-path "~/open-source/fcitx.el")
+  (setq fcitx-remote-command "fcitx5-remote")
   (use-package fcitx
     :config
+    (setq fcitx-use-dbus 'fcitx5)
     (fcitx-prefix-keys-add "C-x" "C-c")
     (fcitx-prefix-keys-turn-on)
     (fcitx-evil-turn-on)
     (fcitx-aggressive-minibuffer-turn-on)
-    (fcitx-isearch-turn-on)
-    (setq fcitx-use-dbus 'fcitx5)))
-
+    (fcitx-isearch-turn-on)))
 ;;;* Magit
 (use-package magit
   :commands (magit-status magit-dispatch)
