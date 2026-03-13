@@ -1,83 +1,87 @@
 * {
-    font-size: 12px;
+    font-size: 14px;
     min-height: 0;
-    border: none;
-    border-radius: 0;
+    border-radius: 1rem;
     font-family: monospace;
 }
 
 window#waybar {
-    background: transparent;
-    color: #ffffff;
-}
-
-window#waybar > box {
-    background: transparent;
-}
-
-/* 左侧盒子 */
-window#waybar > box > box:first-child {
-    background-color: transparent;
-    padding: 0;
-}
-
-#workspaces {
-    margin: 0;
-    padding: 0;
-    background: transparent;
+    background: white;
 }
 
 #workspaces button {
-    padding: 0 12px;
-    margin: 0;
-    background-color: transparent;
-    color: rgba(255, 255, 255, 1.0);
+    padding: 0;
+    padding-right: 3px;
+    color: black;
 }
 
 #workspaces button.focused {
-    background-color: rgba(50, 151, 253, 0.6);
+    background: rgba(50, 151, 253, 0.6);
 }
 
-#workspaces button.urgent {
-    background-color: rgba(153, 0, 0, 0.6);
+#mode {
+    background: #ff6b6b;
+    color: white;
+    padding: 0 8px;
+    border-radius: 0.3rem;
+    font-weight: bold;
 }
 
-/* 右侧盒子 */
-window#waybar > box > box:last-child {
-    background-color: rgba(16, 16, 16, 0.5);
-    padding: 0;
+#window {
+    background: #6a8fa8;
+    color: #f0f8ff;
+    padding: 0 4px;
+    border-radius: 0.3rem;
+}
+window#waybar.empty #window {
+    background: transparent;
+    color: transparent;
 }
 
-#network, #cpu, #memory, #disk, #pulseaudio, #clock, #tray {
-    padding: 0 12px;
+#network, #cpu, #memory, #disk, #pulseaudio, #clock.date, #clock.time, #tray {
+    padding: 0 4px;
     margin: 0;
-    background-color: transparent;
+    border-radius: 0.3rem;
 }
 
 #network {
-    color: #94F397;
+    background: #5b6e7a;
+    color: #f0f4f8;
+    min-width: 320px;
 }
 
 #cpu {
-    color: #8BC3E7;
+    background: #6b7a6f;
+    color: #f0f7ea;
 }
 
 #memory {
-    color: #B987D7;
+    background: #7a6f7a;
+    color: #f7eaf7;
 }
 
 #disk {
-    color: #FF9D17;
+    background: #8a7a6a;
+    color: #f7efe0;
 }
 
 #pulseaudio {
-    color: #ff797b;
+    background: #8a6f6f;
+    color: #ffecec;
 }
 
-#clock {
-    color: #8BADF9;
+#clock.date {
+    background: #b8a99a;
+    color: #3e3a35;
+}
+
+#clock.time {
+    background: #9aaeb8;
+    color: #2d3a40;
 }
 
 #tray {
-    padding: 0 8px;
+    background: #7a7a7a;
+    color: #ffffff;
+    padding: 0 4px;
 }

@@ -1,0 +1,84 @@
+# -*- mode: sh -*-
+# 登录时加载的环境变量 (zsh)
+
+# ========== 通用环境变量 ==========
+
+# fcitx5 输入法
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export SDL_IM_MODULE=fcitx
+export GLFW_IM_MODULE=fcitx
+
+# 语言
+export LANGUAGE=en_US.UTF-8
+
+# 终端
+export TERMINAL="alacritty"
+
+# NVIDIA 显卡 (通用)
+# export __GLX_VENDOR_LIBRARY_NAME=nvidia
+# export GBM_BACKEND=nvidia-drm
+
+# Wayland
+# export XDG_SESSION_TYPE=wayland
+# export QT_QPA_PLATFORM=wayland
+# export SDL_VIDEODRIVER=wayland
+# export CLUTTER_BACKEND=wayland
+# export GDK_BACKEND=wayland
+# export MOZ_ENABLE_WAYLAND=1
+
+# WLR
+#export WLR_NO_HARDWARE_CURSORS=1
+#export WLR_RENDERER_ALLOW_SOFTWARE=1
+
+# Sway
+# export XDG_CURRENT_DESKTOP=sway
+
+# =================================================
+# Research toolchain environment (sunhh)
+# =================================================
+
+# ---- Base dirs --------------------------------------------------------------
+CLIKE_DIR="$HOME/clike"
+TFEL_DIR="$HOME/opt/tfel"
+
+# ---- Helper: add to PATH if not exists --------------------------------------
+_path_append() {
+    case ":$PATH:" in
+        *":$1:"*) ;;  # already exists
+        *) export PATH="$PATH:$1" ;;
+    esac
+}
+
+_ldpath_append() {
+    case ":$LD_LIBRARY_PATH:" in
+        *":$1:"*) ;;
+        *) export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$1" ;;
+    esac
+}
+
+_cpath_append() {
+    case ":$C_INCLUDE_PATH:" in
+        *":$1:"*) ;;
+        *) export C_INCLUDE_PATH="${C_INCLUDE_PATH:+$C_INCLUDE_PATH:}$1" ;;
+    esac
+}
+
+# ---- PATH: executables ------------------------------------------------------
+_path_append "$HOME/.npm-global/bin"
+_path_append "$HOME/bin"
+_path_append "$TFEL_DIR/bin"
+
+# ---- LD_LIBRARY_PATH: shared libraries --------------------------------------
+_ldpath_append "$CLIKE_DIR/lib"
+_ldpath_append "$TFEL_DIR/lib"
+
+# ---- C/C++ include search path ---------------------------------------------
+_cpath_append "$CLIKE_DIR/include"
+
+# ---- Julia settings ---------------------------------------------------------
+export JULIA_PKG_SERVER="https://mirror.nju.edu.cn/julia"
+
+# ---- Cleanup ----------------------------------------------------------------
+unset -f _path_append _ldpath_append _cpath_append

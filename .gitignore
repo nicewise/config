@@ -1,1 +1,5 @@
 *~
+
+# 壁纸软链接（指向外部文件）
+conf.d/background
+conf.d/wallpaper*

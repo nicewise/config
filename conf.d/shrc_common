@@ -17,6 +17,7 @@ alias wifi='nmcli device wifi'
 alias shutdown='shutdown -h now'
 alias cpu="cat /proc/cpuinfo | grep MHz | uniq"
 
+alias sway='sway --unsupported-gpu'
 # paru (AUR helper)
 alias pacs='paru -S'
 alias Syu='paru -Syu'

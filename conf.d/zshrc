@@ -7,21 +7,44 @@
 # 以下只在交互式 shell 加载
 [[ -o interactive ]] || return
 
+# ---------- 历史配置 ----------
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+
 # ---------- 基本选项 ----------
 setopt auto_cd
 setopt interactive_comments
 setopt hist_ignore_dups
 setopt share_history
 
+# ---------- 键绑定 ----------
+# 启用终端 application mode（让 terminfo 生效）
+if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
+  function zle-line-init() { echoti smkx }
+  function zle-line-finish() { echoti rmkx }
+  zle -N zle-line-init
+  zle -N zle-line-finish
+fi
+
+bindkey -e
+
+[[ -n "${terminfo[khome]}" ]] && bindkey "${terminfo[khome]}" beginning-of-line
+[[ -n "${terminfo[kend]}" ]] && bindkey "${terminfo[kend]}" end-of-line
+[[ -n "${terminfo[kdch1]}" ]] && bindkey "${terminfo[kdch1]}" delete-char
+[[ -n "${terminfo[kich1]}" ]] && bindkey "${terminfo[kich1]}" overwrite-mode
+[[ -n "${terminfo[kpp]}" ]] && bindkey "${terminfo[kpp]}" up-line-or-history
+[[ -n "${terminfo[knp]}" ]] && bindkey "${terminfo[knp]}" down-line-or-history
+
 # ---------- 补全 ----------
+mkdir -p ~/.cache/zsh
 autoload -Uz compinit
-compinit
+compinit -d ~/.cache/zsh/compdump
 
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
-# ---------- Prompt（简单、稳定、可读） ----------
-# 绿色用户名 + 蓝色路径 + $
+# ---------- Prompt ----------
 PROMPT='%K{green}%n%k %F{39}%~%f %F{70}$%f '
 
 

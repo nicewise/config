@@ -1,0 +1,28 @@
+#!/bin/sh
+# swaylock-effects 锁屏脚本
+# 从 i3lock 迁移
+
+swaylock \
+	--screenshots \
+	--effect-blur 12x5 \
+	--clock \
+	--indicator \
+	--indicator-radius 100 \
+	--indicator-thickness 7 \
+	--timestr "%H:%M:%S" \
+	--datestr "%A, %Y-%m-%d" \
+	--ring-color 00897bE6 \
+	--ring-ver-color 00564dE6 \
+	--ring-wrong-color 880000bb \
+	--ring-clear-color ffffff22 \
+	--inside-color 00000088 \
+	--inside-ver-color ffffff22 \
+	--inside-wrong-color ffffff22 \
+	--line-color 00000000 \
+	--separator-color 00897bE6 \
+	--key-hl-color 880000bb \
+	--bs-hl-color 880000bb \
+	--text-color 00897bE6 \
+	--text-ver-color 00897bE6 \
+	--text-wrong-color 880000bb \
+	--daemonize
