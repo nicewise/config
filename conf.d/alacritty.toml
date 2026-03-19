@@ -74,3 +74,8 @@ hide_when_typing = false
 [bell]
 animation = "Linear"
 duration = 0
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"

@@ -31,12 +31,6 @@ exec --no-startup-id fcitx5 -d
 exec --no-startup-id nutstore
 exec --no-startup-id wayvnc -o HDMI-A-1
 
-exec --no-startup-id swayidle -w \
-    timeout 300 '$HOME/config/conf.d/swaylock' \
-    timeout 600 'swaymsg "output * power off"' \
-    resume 'swaymsg "output * power on"' \
-    before-sleep 'swaylock -f'
-
 ########## 音量控制 ###########
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%

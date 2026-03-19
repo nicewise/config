@@ -82,7 +82,22 @@
          ("C-x r b" . helm-filtered-bookmarks)
          ("C-x C-f" . helm-find-files))
   :init
-  (helm-mode 1))
+  (helm-mode 1)
+  :config
+  ;; Ctrl+hjkl 导航绑定
+  (define-key helm-map (kbd "C-j") 'helm-next-line)        ; 向下移动
+  (define-key helm-map (kbd "C-k") 'helm-previous-line)    ; 向上移动
+  (define-key helm-map (kbd "C-h") 'helm-previous-source)  ; 向左切换搜索源 / 文件搜索时返回上级目录
+  (define-key helm-map (kbd "C-l") 'helm-execute-persistent-action) ; 向右进入目录/预览/执行当前项
+
+  (define-key helm-map (kbd "C-f") 'helm-next-page)    ; 向下翻页
+  (define-key helm-map (kbd "C-b") 'helm-previous-page) ; 向上翻页
+
+  ;; 可选：文件搜索场景下的增强绑定
+  (with-eval-after-load 'helm-files
+    (dolist (keymap (list helm-find-files-map helm-read-file-map))
+      (define-key keymap (kbd "C-h") 'helm-find-files-up-one-level)
+      (define-key keymap (kbd "C-l") 'helm-execute-persistent-action))))
 
 (use-package helm-bibtex
   :after helm

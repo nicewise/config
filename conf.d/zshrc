@@ -46,5 +46,3 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 # ---------- Prompt ----------
 PROMPT='%K{green}%n%k %F{39}%~%f %F{70}$%f '
-
-

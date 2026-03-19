@@ -36,3 +36,7 @@ alias adog="git log --all --decorate --oneline --graph"
 # brightness.sh
 alias bu="brightness.sh 1"
 alias bd="brightness.sh 0"
+
+# sway output control
+alias mon-off="swaymsg output DP-1 disable"
+alias mon-on="swaymsg output DP-1 enable"
